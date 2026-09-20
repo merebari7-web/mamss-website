@@ -1,0 +1,39 @@
+/* Native-scroll 3D enhancement. All content remains visible without JavaScript. */
+html[data-scroll-fx="on"] main{overflow-x:clip}
+html[data-scroll-fx="on"] .hero-grid{perspective:1500px;perspective-origin:68% 46%}
+html[data-scroll-fx="on"] .hero-visual{transform-style:preserve-3d;transform:perspective(1500px) translate3d(0,var(--hero-y,0px),0) rotateX(var(--hero-rx,3deg)) rotateY(var(--hero-ry,-5deg));transform-origin:50% 46%;box-shadow:16px 22px 38px -23px #38172465;transition:box-shadow .35s}
+html[data-scroll-fx="on"] .hero-visual>.hero-photo{transform:translateZ(0);backface-visibility:hidden}
+html[data-scroll-fx="on"] .hero-visual::after{transform:translateZ(1px)}
+html[data-scroll-fx="on"] .photo-label{transform:translate3d(0,var(--label-y,0px),32px);box-shadow:0 9px 18px #2e192225}
+html[data-scroll-fx="on"] .photo-caption{transform:translate3d(0,var(--caption-y,0px),38px);text-shadow:0 2px 12px #14080a40}
+html[data-scroll-fx="on"] .hero-seal{transform:translate3d(0,var(--seal-y,0px),62px) rotate(var(--seal-rz,-13deg));box-shadow:4px 15px 25px -13px #40212788}
+html[data-scroll-fx="on"] .hero-copy{transform:translate3d(0,var(--copy-y,0px),0);transform-origin:left center}
+html[data-scroll-fx="on"] .hero-carousel-controls{transform:translateZ(15px)}
+.depth-frame{display:none;position:absolute;inset:14px -14px -14px 14px;border:1px solid #b4925e;border-radius:150px 0 0 0;pointer-events:none}
+html[data-scroll-fx="on"] .depth-frame{display:block;transform:translateZ(-32px);opacity:.6}
+.depth-orbit{display:none;position:absolute;top:35px;right:-110px;width:185px;height:185px;pointer-events:none;z-index:0;transform-style:preserve-3d;opacity:.6}
+html[data-scroll-fx="on"] .depth-orbit{display:block;transform:translate3d(0,var(--orbit-y,0px),-65px) rotateX(54deg) rotateY(-19deg) rotateZ(var(--orbit-rz,-25deg))}
+.depth-orbit>i{position:absolute;inset:0;border:1px solid #b28b47;border-radius:50%;display:block}
+.depth-orbit>i:nth-child(2){inset:21px;transform:translateZ(26px);border-color:#bc9a63}
+.depth-orbit>i:nth-child(3){inset:43px;transform:translateZ(52px);border-color:#d1b991}
+.depth-orbit>span{position:absolute;right:21px;top:40px;width:7px;height:7px;border-radius:50%;background:#b89a63;box-shadow:0 0 0 5px #b89a6312;transform:translateZ(32px)}
+#scroll-fx-toggle{font-size:9px;min-width:57px;border-color:#ac8759;background:#f1e6d4;color:#64273a;display:flex;gap:5px;align-items:center;justify-content:center}
+#scroll-fx-toggle::before{content:'';display:block;width:5px;height:5px;border:1px solid currentColor;transform:rotate(45deg)}
+#scroll-fx-toggle[aria-pressed="true"]{background:#77233b;border-color:#77233b;color:#fff4df}
+#scroll-fx-toggle[aria-pressed="true"]::before{background:#e4c392;border-color:#e4c392}
+html[data-scroll-fx="on"] .motion-reveal{transform:perspective(1200px) translate3d(0,var(--reveal-y,0px),var(--reveal-z,0px)) rotateX(var(--reveal-rx,0deg)) rotateY(var(--reveal-ry,0deg));transform-origin:50% 85%;opacity:var(--reveal-opacity,1);backface-visibility:hidden}
+html[data-scroll-fx="on"] .motion-card{position:relative;transform:perspective(1150px) translate3d(0,var(--reveal-y,0px),var(--reveal-z,0px)) rotateX(calc(var(--reveal-rx,0deg) + var(--tilt-rx,0deg))) rotateY(calc(var(--reveal-ry,0deg) + var(--tilt-ry,0deg)));transform-origin:50% 75%;opacity:var(--reveal-opacity,1);backface-visibility:hidden;transition:box-shadow .3s,border-color .3s}
+html[data-scroll-fx="on"] .motion-card.motion-hovered{box-shadow:var(--shadow-x,0px) 22px 37px -22px #48172970;border-color:#b3956c;z-index:2}
+html[data-scroll-fx="on"] .motion-photo{transform:translate3d(0,var(--photo-y,0px),0) scale(1.085);transition:none!important;transform-origin:center;backface-visibility:hidden}
+html[data-scroll-fx="on"] .learning-card:hover .motion-photo,html[data-scroll-fx="on"] .gallery-item:hover .motion-photo{transform:translate3d(0,var(--photo-y,0px),0) scale(1.105);transition:transform .45s!important}
+html[data-scroll-fx="on"] .principal-photo.motion-reveal{transform-origin:50% 65%}
+html[data-scroll-fx="on"] .school-workspace.motion-reveal{transform-origin:50% 90%}
+/* Keyboard focus settles a reveal immediately in motion.js; pointer presses freeze their geometry. */
+@media(max-width:1150px){.depth-orbit{right:-75px;width:140px;height:140px;top:29px}.depth-frame{inset:10px -10px -10px 10px}}
+@media(max-width:900px){.depth-orbit{display:none!important}.depth-frame{border-radius:100px 0 0 0}html[data-scroll-fx="on"] .photo-label{transform:translateZ(16px)}html[data-scroll-fx="on"] .photo-caption{transform:translateZ(18px)}html[data-scroll-fx="on"] .hero-seal{transform:translate3d(0,var(--seal-y,0px),28px) rotate(var(--seal-rz,-13deg))}}
+@media(max-width:600px){.depth-frame{inset:8px -7px -8px 7px;border-radius:85px 0 0 0}#scroll-fx-toggle{min-width:54px;font-size:8px}html[data-scroll-fx="on"] .hero-visual{box-shadow:9px 15px 26px -18px #38172465}html[data-scroll-fx="on"] .photo-caption{transform:translateZ(12px)}html[data-scroll-fx="on"] .hero-seal{transform:translate3d(0,var(--seal-y,0px),18px) rotate(var(--seal-rz,-13deg))}}
+@media(prefers-reduced-motion:reduce){.depth-frame,.depth-orbit{display:none!important}html[data-scroll-fx] .motion-reveal,html[data-scroll-fx] .motion-card,html[data-scroll-fx] .motion-photo,html[data-scroll-fx] .hero-visual,html[data-scroll-fx] .hero-copy,html[data-scroll-fx] .photo-caption,html[data-scroll-fx] .photo-label,html[data-scroll-fx] .hero-carousel-controls{transform:none!important;opacity:1!important;transition:none!important}html[data-scroll-fx] .hero-seal{transform:rotate(-13deg)!important}}
+@media print{.depth-orbit,.depth-frame,#scroll-fx-toggle{display:none!important}.motion-reveal,.motion-card,.motion-photo,.hero-visual,.hero-copy{transform:none!important;opacity:1!important;box-shadow:none!important}}
+html[data-scroll-fx="on"] .hero-visual{border-radius:150px 0 0 0}
+@media(max-width:900px){html[data-scroll-fx="on"] .hero-visual{border-radius:100px 0 0 0}}
+@media(max-width:600px){html[data-scroll-fx="on"] .hero-visual{border-radius:85px 0 0 0}}
