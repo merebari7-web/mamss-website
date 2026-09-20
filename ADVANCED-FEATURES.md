@@ -1,4 +1,12 @@
-# Advanced improvements — premium school website, version 3
+# Advanced improvements — premium school website, version 3.1
+
+## Version 3.1 — loading screen
+
+The dependency-free welcome is embedded by the build, before the main stylesheet/runtime. The original crest, CSS/SVG orbit and five-check progress display are decorative and informational, not a login or a pretend download counter. `loading.js` observes actual stylesheet, app, font, document and opening-photo readiness; the application signals readiness only after its complete bundle has executed.
+
+It has no artificial minimum wait. Skip/Escape, a 3.5-second safety deadline, asset failures, no-JavaScript fallback, reduced motion, background/history handling and print cleanup prevent an indefinite or repeated interruption. A deep link uses its own opening view rather than waiting for the hidden homepage picture. Native-dialog semantics contain focus; skip restores main-content focus. Offline access remains separately opt-in, and the inline screen adds no extra offline dependencies. It creates no storage entries; only a previously consented School Desk motion preference is read.
+
+The 24 dedicated tests exercise these cases in real Chromium, including Axe scans while the screen is actually open, not merely after it disappears.
 
 ## Version 3 additions
 
@@ -26,7 +34,7 @@
 
 ## Retained version 2 integration
 
-The School Desk data contract and all tools below are retained. The website now has eight focused chapters, a new admission guide, audience shortcuts, accessible mobile quick navigation and minified startup bundles. Search and old section hashes reveal the correct chapter before focusing it. The school site and MAMSS Prep remain separate. See README.md for the current 95-check reproducible suite and deployment instructions.
+The School Desk data contract and all tools below are retained. The website now has eight focused chapters, a new admission guide, audience shortcuts, accessible mobile quick navigation and minified startup bundles. Search and old section hashes reveal the correct chapter before focusing it. The school site and MAMSS Prep remain separate. See README.md for the current 119-check reproducible suite and deployment instructions.
 
 Optional 3D is now **off by default** and its CSS/JS load only when enabled; an existing saved preference is preserved. Effects do not control the new hero layout. Offline data is isolated by project scope. The default shell does not preload optional motion files; previously visited optional resources can be cached.
 

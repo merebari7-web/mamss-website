@@ -1,8 +1,18 @@
-# MAMSS — school website, version 3
+# MAMSS — school website, version 3.1
 
 Live: **https://merebari7-web.github.io/mamss-website/**
 
 A premium, heritage-inspired redesign of the public school website: burgundy, cream and gold, authentic school photography, a focused eight-chapter layout and a local-first School Desk. The separately hosted **[MAMSS Prep](https://merebari7-web.github.io/mamss-prep/)** remains linked and unchanged. The source school site at mamss.com.ng and its private systems are not modified by this repository.
+
+## Version 3.1 — branded readiness screen
+
+A full-screen burgundy-and-gold welcome pairs the original school crest with an animated orbital ring, a live progress indicator and a short reveal into the website. It measures **five readiness checks** (page structure, main stylesheet, application, local typography, and the opening photo/view), not download bytes. No progress is simulated and there is **no minimum display time**.
+
+- Critical styles, markup and controller are built directly into the HTML, before the main stylesheet/script. The welcome does not depend on another network request or third-party library.
+- Skip intro and Escape dismiss immediately. A native modal keeps keyboard focus away from the obscured site; skipping focuses the main content. System reduced motion and an existing opted-in School Desk motion preference disable decorative animation.
+- Completion reveals the site with a 340 ms fade. A **3.5-second deadline**, stylesheet/script failures, printing and background/history restoration release the overlay immediately. Failed optional fonts/photos are marked unavailable rather than falsely reported as loaded.
+- Deep links retain their destination and do not wait for the hidden home photograph. Chapter changes and browser history never replay the welcome. Without JavaScript or native-dialog support it stays hidden.
+- No new storage, cookies or visitor tracking. The loader only reads an already opted-in motion preference. The screen also works from the existing, explicitly enabled offline cache.
 
 ## What changed in version 3
 
@@ -32,18 +42,19 @@ Node **22** is specified in `.nvmrc`. Production serves the checked-in static fi
 npm ci
 npm run build       # authored CSS/JS → site.min.css + site.min.js
 npm run serve       # gzip-enabled local preview, http://localhost:8230
-npm test            # 95 real-browser regression checks (60 existing + 35 new)
+npm test            # 119 real-browser checks (60 core + 35 premium + 24 loading)
 ```
 
 The preview server binds to `0.0.0.0` for hosted previews. It is not a production server. An arbitrary static server can serve the built site, but compression affects performance measurements. Offline tests require localhost or HTTPS; they cannot run from `file://`.
 
-**Edit the source files, not the minified bundles, then rebuild.** Commit both sources and generated bundles. The build is deterministic; regression tests verify this.
+**Edit the source files, not the minified bundles, then rebuild.** Commit both sources and generated bundles. The build is deterministic; regression tests verify this. Edit the loading-screen source files rather than their generated inline regions. CI checks both `index.html` and the runtime bundles for build drift.
 
 ### Source map
 
 | Files | Purpose |
 |---|---|
-| `index.html` | Static content, eight chapters, metadata and accessible navigation |
+| `index.html` | Static content, eight chapters, metadata, navigation and built inline loading-screen regions |
+| `loading.html`, `loading.css`, `loading.js` | Authored loading screen; build embeds it inside the marked regions of `index.html` |
 | `premium.css`, `premium.js` | Version-3 visual refinement, school stories, visit enquiry and photo-viewer enhancements; bundled last |
 | `site.css`, `site.js` | Eight-chapter design system, responsive layout, routing, focus/menu management, admission handoff and optional effects loader |
 | `app.js`, `features.js`, `advanced.js` | Existing school content, dialogs/gallery, services, search, desk and consent-aware data tools |
@@ -53,13 +64,14 @@ The preview server binds to `0.0.0.0` for hosted previews. It is not a productio
 | `sw.js`, `manifest.webmanifest` | Explicit opt-in public-site offline support and install metadata |
 | `assets/`, `licenses/` | Original school media, responsive image variants, local fonts and licence notices |
 | `scripts/build.cjs`, `scripts/server.cjs` | Reproducible build and gzip/project-prefix preview server |
-| `tests/site.cjs`, `tests/premium.cjs` | Existing 60 checks plus 35 premium-feature behaviour, privacy, accessibility and offline checks |
+| `tests/site.cjs`, `tests/premium.cjs`, `tests/loading.cjs` | 60 core + 35 premium + 24 loading-screen behaviour, failure-recovery, privacy and accessibility checks |
 | `lighthouserc.cjs`, `.github/workflows/` | Automated tests and deployed-site Lighthouse monitoring |
 
 ## Verification
 
-The version-3 regression suite contains **95 passing checks** in Chromium: 60 retained checks and 35 new checks. It covers:
+The version-3.1 regression suite contains **119 checks** in Chromium: 60 core, 35 premium and 24 loading-screen checks. It covers:
 
+- Open loading screen at **320, 390, 768 and 1440 px**, actual readiness versus stalled requests, skip/Escape focus, stylesheet/script/font/photo failure, independent critical styling, no-JavaScript fallback, motion preferences, deep links, history/printing and offline reload.
 - All three enquiry steps at **320, 375, 768 and 1440 px** with Axe checks, safe review/escaping, editable back navigation, reset confirmation, copy fallback, exact downloaded content, explicit reminder consent and a genuinely offline enquiry flow.
 - Story keyboard controls and image retry, all 11 contents links, 14 lightweight thumbnails, filter synchronisation, photo zoom/panning, focus restoration and keyboard selection.
 - All eight chapters at **320, 360, 375, 390, 414, 600, 768, 820, 1024, 1280, 1440 and 1920 px**, with no document overflow.
@@ -107,6 +119,6 @@ Repeated carousel clones have been consolidated rather than duplicated. Statisti
 
 School management should verify current admission dates, fees, availability, contacts, leadership and educational claims; confirm student-photo permissions; supply an official high-resolution crest and approved privacy text; and provide missing history, anthem, newsletters, calendars and assignments. Publishing this front end does not establish those approvals or invent missing content.
 
-GitHub Pages serves `main` at the repository root; `.nojekyll` preserves the static structure. Keep all deployed relative paths intact. For this release, runtime URLs use `?v=3` and the scoped worker cache is `mamss-public-v8:<scope-path>`. Keep the HTML and worker’s precache URLs aligned, bump the worker version when changing the shell, rebuild, run the suite, and verify the live deployment. The hosting provider controls HTTPS, compression and HTTP security headers.
+GitHub Pages serves `main` at the repository root; `.nojekyll` preserves the static structure. Keep all deployed relative paths intact. For this release, runtime URLs use `?v=3.1` and the scoped worker cache is `mamss-public-v9:<scope-path>`. Keep the HTML and worker’s precache URLs aligned, bump the worker version when changing the shell, rebuild, run the suite, and verify the live deployment. The hosting provider controls HTTPS, compression and HTTP security headers.
 
 A CMS, authentication, online applications, payments, email delivery, push notifications, shared calendars or cloud synchronisation would require separately authorised integrations. No access tokens, credentials or private school records belong in this public repository.
