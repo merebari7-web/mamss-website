@@ -273,8 +273,11 @@ function enhanceImage(img){
  // Standalone embedded previews already contain their original images.
  if(src.startsWith('data:'))return;
  const stem=src.split('/').pop()?.replace(/\.webp$/,'');const spec=RESPONSIVE_IMAGES[stem];
- if(!spec||img.dataset.responsiveFor===src)return;
+ if(img.dataset.responsiveFor===src)return;
  img.dataset.responsiveFor=src;
+ // A photo with no generated variants must not keep the previous photo's srcset:
+ // srcset outranks src, so a stale one leaves the old picture on screen.
+ if(!spec){img.removeAttribute('srcset');img.removeAttribute('sizes');img.decoding='async';return;}
  img.srcset=spec.widths.map(w=>`assets/${stem}--${w}.webp ${w}w`).concat(`${src} ${spec.original}w`).join(', ');
  img.sizes=img.classList.contains('hero-photo')?'(max-width: 600px) calc(100vw - 50px), (max-width: 900px) 46vw, 48vw':img.closest('dialog')?'(max-width: 740px) 85vw, 650px':'(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 45vw, 33vw';
  img.decoding='async';

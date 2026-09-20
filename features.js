@@ -11,7 +11,6 @@ const schoolLinks = {
   examiner:'https://schools.sch.ng/mamsscbt/Y1/teacher_login.php',
   library:'https://schoolsnigeria.com.ng/mamss/elibrary/',
   libraryLogin:'https://schoolsnigeria.com.ng/mamss/elibrary/login.php',
-  libraryLegacy:'https://reogis.org/mamss/elibrary/',
   admin:'https://schoolsnigeria.com.ng/mamss/site/login',
   user:'https://schoolsnigeria.com.ng/mamss/site/userlogin',
   forgot:'https://schoolsnigeria.com.ng/mamss/site/ufpassword',
@@ -158,7 +157,7 @@ function showAnnouncements(){
  function poster(k){const [file,alt,note]=posters[k];$('#poster-content').innerHTML=`<p class="notice">${note}</p><img src="${localPhoto(file)}" alt="${alt}"><a class="button" href="${localPhoto(file)}" download="${file}.webp">Download original flyer <span>↓</span></a>`;$$('[data-poster]').forEach(b=>{const active=b.dataset.poster===k;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});}
  $$('[data-poster]').forEach(b=>b.addEventListener('click',()=>poster(b.dataset.poster)));poster('admissions');
 }
-function showLibrary(){showDialog(`<p class="eyebrow">KNOWLEDGE IS POWER</p><h2>Your digital<br><em>learning gateway.</em></h2><p>The school’s e-library offers a gateway to learning materials. The original “Get Started” link leads to an authorised school sign-in. Continue to the school’s own service using the credentials provided to you.</p><div class="modal-link-list">${externalLink(schoolLinks.library,'Open the digital library')}${externalLink(schoolLinks.libraryLogin,'Teacher / library sign-in','button light')}${externalLink(schoolLinks.libraryLegacy,'Original footer e-library link','text-link')}</div><p class="notice">This redesign does not host restricted books or collect library passwords. If you need access, contact your teacher or the school office.</p>`);}
+function showLibrary(){showDialog(`<p class="eyebrow">KNOWLEDGE IS POWER</p><h2>Your digital<br><em>learning gateway.</em></h2><p>The school’s e-library offers a gateway to learning materials. The original “Get Started” link leads to an authorised school sign-in. Continue to the school’s own service using the credentials provided to you.</p><div class="modal-link-list">${externalLink(schoolLinks.library,'Open the digital library')}${externalLink(schoolLinks.libraryLogin,'Teacher / library sign-in','button light')}</div><p class="notice">This redesign does not host restricted books or collect library passwords. If you need access, contact your teacher or the school office.</p>`);}
 function showUserLogin(){showDialog(`<p class="eyebrow">YOUR EXISTING SCHOOL ACCOUNT</p><h2>Continue to<br><em>your school login.</em></h2><p>Sign in on the school’s original user portal. Your username, password, and account recovery remain with the existing school system.</p><div class="modal-link-list">${externalLink(schoolLinks.user,'Open user login')}${externalLink(schoolLinks.forgot,'Forgot your password?','button light')}</div><p class="small-note">Do not enter account credentials into enquiries or complaint messages. This website does not ask for your password.</p>`);}
 
 // Contact form prepares a draft; it never falsely claims a server submission.
@@ -182,7 +181,7 @@ const featureActions={
 document.addEventListener('click',e=>{const button=e.target.closest('[data-action]');if(button&&featureActions[button.dataset.action]){closeMenu();featureActions[button.dataset.action]();}});
 
 // Restore the PTA notice found on the original gallery/news page.
-$('#news .news-grid').insertAdjacentHTML('beforeend',`<button class="news-card pta-news" data-action="calendar"><div class="pta-date"><span>PTA NOTICE</span><b>06</b><strong>OCTOBER</strong><small>Year & time to be confirmed</small></div><div><p class="news-meta">PARENTS & GUARDIANS <span>CONFIRM WITH THE SCHOOL</span></p><h3>Stay connected with our parent community</h3><p>The original website mentions a PTA meeting on 6 October. Please confirm the year, time, and arrangements before attending.</p><span class="text-link">View dates & notice <span>↗</span></span></div></button>`);
+$('#news .news-grid').insertAdjacentHTML('beforeend',`<button class="news-card pta-news" data-action="calendar"><span class="pta-date"><span>PTA NOTICE</span><b>06</b><strong>OCTOBER</strong><small>Year & time to be confirmed</small></span><span class="news-body"><span class="news-meta">PARENTS & GUARDIANS <span>CONFIRM WITH THE SCHOOL</span></span><span class="news-title">Stay connected with our parent community</span><span class="news-summary">The original website mentions a PTA meeting on 6 October. Please confirm the year, time, and arrangements before attending.</span><span class="text-link">View dates & notice <span>↗</span></span></span></button>`);
 $('#news .container').insertAdjacentHTML('beforeend',`<div class="news-archive-link">${externalLink(schoolLinks.news,'Browse the original news & events archive','text-link')}</div>`);
 
 // Expand the previously concise article with the original school's published details.

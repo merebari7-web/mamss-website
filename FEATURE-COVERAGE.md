@@ -50,7 +50,7 @@ All external service links open separately. No portal usernames, passwords, stud
 | CBT examiner/staff login | https://schools.sch.ng/mamsscbt/Y1/teacher_login.php |
 | E-library gateway | https://schoolsnigeria.com.ng/mamss/elibrary/ |
 | E-library teacher/user login | https://schoolsnigeria.com.ng/mamss/elibrary/login.php |
-| Original footer e-library link | https://reogis.org/mamss/elibrary/ |
+| Original footer e-library link | Removed — `reogis.org` no longer resolves (NXDOMAIN, checked 20 September 2026). Use the E-library gateway above. |
 | Website admin login | https://schoolsnigeria.com.ng/mamss/site/login |
 | Original school user login | https://schoolsnigeria.com.ng/mamss/site/userlogin |
 | Original user password recovery | https://schoolsnigeria.com.ng/mamss/site/ufpassword |

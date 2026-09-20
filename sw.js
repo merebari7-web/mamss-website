@@ -1,5 +1,5 @@
 /* Public offline shell only. Cross-origin/private portals are never intercepted. */
-const CACHE='mamss-public-v5-prep-20260920';
+const CACHE='mamss-public-v6-fix-20260920';
 const ROOT=new URL('./',self.location.href).href;
 const ROOT_PATH=new URL(ROOT).pathname;
 const SHELL=['./','index.html','styles.css','features.css','advanced.css','motion.css','fonts.css','app.js','features.js','advanced.js','motion.js','manifest.webmanifest','assets/crest.webp','assets/app-icon-192.png','assets/app-icon-512.png','assets/font-0.woff2','assets/font-1.woff2','assets/font-2.woff2','assets/font-3.woff2','assets/font-4.woff2','assets/visit035.webp','assets/visit035--480.webp','assets/visit035--900.webp'];
