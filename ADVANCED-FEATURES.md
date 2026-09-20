@@ -1,8 +1,32 @@
-# Advanced improvements — School Desk and version 2
+# Advanced improvements — premium school website, version 3
 
-## Version 2 integration
+## Version 3 additions
 
-The School Desk data contract and all tools below are retained. The website now has eight focused chapters, a new admission guide, audience shortcuts, accessible mobile quick navigation and minified startup bundles. Search and old section hashes reveal the correct chapter before focusing it. The school site and MAMSS Prep remain separate. See README.md for the current 60-check reproducible suite and deployment instructions.
+### Guided visit enquiry
+- Launch from the homepage, admission chapter, invitation or Contact visit card.
+- Three steps: interest/preferences → questions → reviewed enquiry and optional personal follow-up.
+- Only JSS 1, JSS 2, SS 1 and SS 2 are offered as entry classes, plus a general enquiry. A proposed date cannot be in the past; a preferred time requires a date. Neither establishes school availability.
+- Select discussion topics and optionally write a question (400 characters; rendered as text, never executable HTML). Do not include sensitive information.
+- Open a `mailto:` draft in an email app, copy with a manual-selection fallback, or download the exact reviewed plan as UTF-8 text. The website has no sending service or submission endpoint.
+- A dated plan may explicitly add one follow-up reminder. Duplicate clicks are blocked, the existing 100-reminder cap applies, and the same School Desk consent and export rules govern it.
+- Answers live only in page memory, never storage or backups. Closing retains answers; reset/reload clears them. Reset is confirmed and does not delete previously created reminders.
+- No new permission prompt, account, tracking or dependency is introduced. The bundled wizard works after an opt-in offline reload; sending email and school confirmation require separate services.
+
+### School stories and chapter contents
+- Original photographs illustrate Learning, Community and Faith; nothing depicts a fabricated facility.
+- Tabs support Left/Right, Home/End, one tab stop, proper labels and a live status. Each story links to the relevant chapter.
+- Unavailable photography shows a retry state. Lazy images and the existing responsive variants keep the initial page lightweight.
+- Eleven contents shortcuts reveal the correct sections using the same router and history/focus management as other internal links.
+
+### Photograph viewer
+- Fourteen tiny 160-pixel WebP derivatives are made from the original collection. Thumbnails are created only when a photograph is opened, and match the current filter.
+- Roving keyboard focus supports Left/Right and Home/End. The selected thumbnail and count update together.
+- Enlarge/fit controls permit native scrolling and keyboard panning, rather than hijacking arrow keys while zoomed. Moving to a different photo or closing resets zoom.
+- Original photo captions, large files, native-dialog focus containment, Escape dismissal and focus restoration remain intact.
+
+## Retained version 2 integration
+
+The School Desk data contract and all tools below are retained. The website now has eight focused chapters, a new admission guide, audience shortcuts, accessible mobile quick navigation and minified startup bundles. Search and old section hashes reveal the correct chapter before focusing it. The school site and MAMSS Prep remain separate. See README.md for the current 95-check reproducible suite and deployment instructions.
 
 Optional 3D is now **off by default** and its CSS/JS load only when enabled; an existing saved preference is preserved. Effects do not control the new hero layout. Offline data is isolated by project scope. The default shell does not preload optional motion files; previously visited optional resources can be cached.
 

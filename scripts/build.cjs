@@ -9,13 +9,14 @@ const fs = require("node:fs"),
     "features.css",
     "advanced.css",
     "site.css",
+    "premium.css",
   ]
     .map((f) => fs.readFileSync(f, "utf8"))
     .join("\n");
   const css = new CleanCSS({ level: 1, rebase: false }).minify(styles);
   if (css.errors.length) throw Error(css.errors.join("\n"));
   fs.writeFileSync("site.min.css", css.styles + "\n");
-  const scripts = ["app.js", "features.js", "advanced.js", "site.js"]
+  const scripts = ["app.js", "features.js", "advanced.js", "site.js", "premium.js"]
     .map((f) => fs.readFileSync(f, "utf8"))
     .join("\n;\n");
   const js = await terser.minify(scripts, {

@@ -2,7 +2,11 @@
 
 Reviewed against the rendered public site at **https://schoolsnigeria.com.ng/mamss/**, which is embedded by **https://www.mamss.com.ng/**. Review date: **20 September 2026**.
 
-This inventory records the original content and service destinations retained by the redesign. Version 2 reorganises them into eight focused chapters without recreating or migrating private systems. Current reproducible verification is documented in README.md and tests/site.cjs; the historical checks below describe the earlier restoration.
+This inventory records the original content and service destinations retained by the redesign. Versions 2 and 3 organise them into eight focused chapters without recreating or migrating private systems. Current reproducible verification is documented in README.md, tests/site.cjs and tests/premium.cjs; the historical checks below describe the earlier restoration.
+
+## Version 3 additions (no private-system changes)
+
+The editorial homepage, school-life story explorer, chapter contents and three-step visit-enquiry planner supplement the retained features below. Visit plans are not bookings or applications; email is reviewed and sent only in the visitor’s email app. Optional personal reminders use the existing opt-in School Desk. All 17 resources, 14 gallery photos, 12 hero photos, school information and original external destinations remain.
 
 ## Navigation and school information
 
@@ -30,7 +34,7 @@ This inventory records the original content and service destinations retained by
 | Latest-news ticker | Static accessible noticeboard entry, announcement dialog, news section, and original archive link rather than forced scrolling |
 | Admission/results pop-up | On-demand announcement dialog with both original posters, poster selector, and downloads; no unsolicited pop-up |
 | JAMB achievement flyer | Original flyer and published top score retained |
-| School photos / lightbox | Expanded 14-image school gallery, category filtering, captions, previous/next, and arrow-key navigation |
+| School photos / lightbox | Expanded 14-image school gallery, category filtering, captions, previous/next, arrow-key navigation, 14 small thumbnails and enlarge/fit controls |
 | Official working visit | Expanded article with original visit date (29 April 2026), publication date (2 June 2026), three original photos, and source link |
 | News & Events | Local news cards plus original archive link |
 | PTA notice | Original 6 October notice retained; year, time, and venue are not published in that article, so the site asks users to confirm rather than assigning a date |

@@ -55,10 +55,10 @@ function renderGallery(filter='all'){
  $('#gallery').innerHTML=visiblePhotos.map((p,i)=>`<button class="gallery-item" data-photo="${i}" aria-label="View photograph: ${p.caption}"><img src="assets/${p.file}.webp" alt="${p.alt}" loading="lazy"><span>${p.caption}<b aria-hidden="true">↗</b></span></button>`).join('');
  $$('[data-photo]').forEach(b=>b.addEventListener('click',()=>{previousFocus=b;photoIndex=Number(b.dataset.photo);updatePhoto();lightbox.showModal();document.body.classList.add('modal-open');}));
 }
-function updatePhoto(){const p=visiblePhotos[photoIndex];$('#large-photo').src=`assets/${p.file}.webp`;$('#large-photo').alt=p.alt;$('#photo-description').textContent=p.caption;$('#photo-count').textContent=`${photoIndex+1} / ${visiblePhotos.length}`;}
+function updatePhoto(){const p=visiblePhotos[photoIndex];$('#large-photo').src=`assets/${p.file}.webp`;$('#large-photo').alt=p.alt;$('#photo-description').textContent=p.caption;$('#photo-count').textContent=`${photoIndex+1} / ${visiblePhotos.length}`;lightbox.dispatchEvent(new Event('mamss:photochange'));}
 function movePhoto(dir){photoIndex=(photoIndex+dir+visiblePhotos.length)%visiblePhotos.length;updatePhoto();}
 $('#previous-photo').addEventListener('click',()=>movePhoto(-1));$('#next-photo').addEventListener('click',()=>movePhoto(1));
-lightbox.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){e.preventDefault();movePhoto(-1);}if(e.key==='ArrowRight'){e.preventDefault();movePhoto(1);}});
+lightbox.addEventListener('keydown',e=>{if(e.target.closest('.photo-thumbs')||(e.target.closest('.lightbox-stage')&&lightbox.dataset.zoom==='in'))return;if(e.key==='ArrowLeft'){e.preventDefault();movePhoto(-1);}if(e.key==='ArrowRight'){e.preventDefault();movePhoto(1);}});
 $$('[data-filter]').forEach(b=>b.addEventListener('click',()=>{$$('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});renderGallery(b.dataset.filter);}));
 renderGallery();
 $('#year').textContent=new Date().getFullYear();
