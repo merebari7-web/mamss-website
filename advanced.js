@@ -60,7 +60,7 @@ function commitDesk(){persistDesk();updateDeskChrome();syncFavoriteButtons();}
 function resourceLink(r,label='Open resource',cls='desk-link'){
  return r.href?externalLink(r.href,label,cls):`<button class="${cls}" data-action="${r.action}">${label} <span>↗</span></button>`;
 }
-function progressMarkup(){const count=deskState.tasks.length;return`<div class="task-progress-header"><b>${count} of ${deskTaskList.length} steps</b><span>${Math.round(count/deskTaskList.length*100)}%</span></div><progress class="task-progress" max="6" value="${count}" aria-label="Admission checklist completion">${count} of 6 steps</progress>`;}
+function progressMarkup(){const count=deskState.tasks.length;return`<span class="task-progress-header"><b>${count} of ${deskTaskList.length} steps</b><span>${Math.round(count/deskTaskList.length*100)}%</span></span><progress class="task-progress" max="6" value="${count}" aria-label="Admission checklist completion">${count} of 6 steps</progress>`;}
 function smallResourceRow(key,saved=false){const r=resourceByKey[key];return`<div class="desk-resource-row"><div><span>${r.label}</span><strong>${r.title}</strong></div>${resourceLink(r,'Open','desk-resource-open')}<button class="desk-save" data-save-resource="${key}" aria-pressed="${saved}" aria-label="${saved?'Remove':'Save'} ${escapeHtml(r.title)}${saved?' from saved resources':''}">${saved?'★':'☆'}</button></div>`;}
 function renderOverview(){
  const recommended=deskState.role==='staff'?['school-portal-login','cbt-examiner-staff-login','digital-e-library']:deskState.role==='student'?['mamss-prep','cbt-student-login','digital-e-library','check-student-results']:['check-student-results','school-calendar','submit-a-contact-form'];
