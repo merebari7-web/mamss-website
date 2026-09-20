@@ -9,13 +9,13 @@ function showDialog(html) {
   $('#dialog-content h2').id='dialog-heading';
   contentDialog.showModal();
   contentDialog.scrollTop=0;
-  $('.dialog-close',contentDialog).focus();
+  $('.dialog-close',contentDialog).focus({preventScroll:true});
   document.body.classList.add('modal-open');
 }
 $$('#content-dialog, #lightbox').forEach(dialog=>{
   $('.dialog-close',dialog).addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
-  dialog.addEventListener('close',()=>{if(!document.querySelector('dialog[open]')){document.body.classList.remove('modal-open');if(previousFocus?.isConnected)previousFocus.focus();}});
+  dialog.addEventListener('close',()=>{if(!document.querySelector('dialog[open]')){document.body.classList.remove('modal-open');if(previousFocus?.isConnected&&previousFocus.getClientRects().length)previousFocus.focus({preventScroll:true});else {const heading=document.querySelector('[data-page].is-active h1');if(heading){heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});}}}});
 });
 $('#menu-toggle').addEventListener('click',()=>{
   const open=$('#navigation').classList.toggle('open');

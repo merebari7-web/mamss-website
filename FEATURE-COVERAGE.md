@@ -2,7 +2,7 @@
 
 Reviewed against the rendered public site at **https://schoolsnigeria.com.ng/mamss/**, which is embedded by **https://www.mamss.com.ng/**. Review date: **20 September 2026**.
 
-The first redesign retained the main public content but omitted several original header/footer services. This revision adds those services and restores the missing public sections. Existing private systems are linked, not recreated or migrated.
+This inventory records the original content and service destinations retained by the redesign. Version 2 reorganises them into eight focused chapters without recreating or migrating private systems. Current reproducible verification is documented in README.md and tests/site.cjs; the historical checks below describe the earlier restoration.
 
 ## Navigation and school information
 
@@ -14,7 +14,7 @@ The first redesign retained the main public content but omitted several original
 | Management Team | Four-person administrative board with original school portraits |
 | School Anthem | Our school menu → availability dialog. Original menu has no anthem text/audio destination; requests go to the school. |
 | School Facilities | Dedicated keyboard-accessible tabs for ICT, science/art, internet/security, and student environment |
-| Admission Procedure | Admission dialog, entry-class guidance, form collection details, telephone links, flyer download, and past-date warning |
+| Admission Procedure | Full admission chapter with class-aware checklist handoff, plus admission dialog, entry-class guidance, form collection details, telephone links, flyer download, and past-date warning |
 | Principal welcome | Original expanded message and principal photo |
 | Male and female students | Both original student spotlight images and descriptions |
 | Why choose MAMSS? | Five original priorities retained in their own section; security arrangements explicitly require school confirmation |
@@ -69,7 +69,7 @@ The original header labelled the CBT class selector as “Admin Login”. Both t
 | School email | mailto:matermesericordiae@gmail.com |
 | General phone | 0901 365 3629 |
 | Admissions phones from original flyer | 0703 789 8216, 0905 733 3259, 0810 024 9164 |
-| WhatsApp chat widget | Direct floating chat link: https://wa.me/2349013653629 |
+| WhatsApp chat widget | Direct contact link: https://wa.me/2349013653629 |
 | Facebook | Original official page link retained |
 | Address | No. 2 Arochukwu Street, Rumuomasi, Port Harcourt, with Maps directions |
 | Back to top | Footer home/top anchor |

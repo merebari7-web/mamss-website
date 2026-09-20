@@ -57,7 +57,7 @@ function changeHero(direction){
  $('#hero-slide-count').textContent=`${String(heroIndex+1).padStart(2,'0')} / ${heroSlides.length}`;
 }
 function stopHeroTimer(){if(heroTimer)clearInterval(heroTimer);heroTimer=null;}
-function startHeroTimer(){stopHeroTimer();if(heroPlaying&&!document.hidden&&!contentDialog.open&&!lightbox.open)heroTimer=setInterval(()=>changeHero(1),6000);}
+function startHeroTimer(){stopHeroTimer();if(heroPlaying&&(!window.MAMSS||MAMSS.current==='home')&&!document.hidden&&!contentDialog.open&&!lightbox.open)heroTimer=setInterval(()=>changeHero(1),6000);}
 $('#hero-previous').addEventListener('click',()=>{changeHero(-1);startHeroTimer();});
 $('#hero-next').addEventListener('click',()=>{changeHero(1);startHeroTimer();});
 $('#hero-play').addEventListener('click',()=>{

@@ -1,0 +1,51 @@
+name: Lighthouse CI
+on:
+  push:
+    branches: [main]
+    paths: ['*.html', '*.css', '*.js', '*.webmanifest', 'assets/**', 'lighthouserc.cjs', '.github/workflows/lighthouse.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lighthouse-main
+  cancel-in-progress: true
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Wait for this revision to reach Pages
+        shell: python
+        run: |
+          import hashlib, os, pathlib, time, urllib.request
+          files = ['index.html', 'site.min.css', 'site.min.js', 'sw.js']
+          expected = {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest() for name in files}
+          base = 'https://merebari7-web.github.io/mamss-website/'
+          for attempt in range(60):
+              try:
+                  matches = []
+                  for name in files:
+                      url = base + name + '?release=' + os.environ['GITHUB_SHA']
+                      with urllib.request.urlopen(url, timeout=15) as response:
+                          matches.append(hashlib.sha256(response.read()).hexdigest() == expected[name])
+                  if all(matches):
+                      print('Published runtime matches this revision.')
+                      break
+              except Exception as error:
+                  print(type(error).__name__)
+              time.sleep(5)
+          else:
+              raise SystemExit('Pages did not publish this revision in time.')
+      - name: Audit deployed website twice
+        run: npx --yes --package=@lhci/cli@0.15.1 lhci autorun --config=lighthouserc.cjs
+      - name: Preserve reports including failed assertions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: lighthouse-reports
+          if-no-files-found: warn

@@ -1,6 +1,12 @@
-# Advanced improvements — School Desk edition
+# Advanced improvements — School Desk and version 2
 
-## What is new
+## Version 2 integration
+
+The School Desk data contract and all tools below are retained. The website now has eight focused chapters, a new admission guide, audience shortcuts, accessible mobile quick navigation and minified startup bundles. Search and old section hashes reveal the correct chapter before focusing it. The school site and MAMSS Prep remain separate. See README.md for the current 60-check reproducible suite and deployment instructions.
+
+Optional 3D is now **off by default** and its CSS/JS load only when enabled; an existing saved preference is preserved. Effects do not control the new hero layout. Offline data is isolated by project scope. The default shell does not preload optional motion files; previously visited optional resources can be cached.
+
+## Tool behaviour
 
 ### 1. Site-wide search
 - Search public school information, admission guidance, resources, notices, and services.
@@ -69,7 +75,9 @@ These controls complement browser zoom and assistive technologies. They are not 
 - Initial images use asynchronous decoding; existing below-the-fold image lazy loading is retained.
 - Static HTML/CSS/JavaScript delivery remains free of framework/CDN/API dependencies.
 
-## Tested
+## Earlier tool-level checks
+
+These checks describe the earlier School Desk implementation. The current version-2 reproducible regression coverage is listed in README.md.
 
 Chromium interaction checks included:
 - Site-wide search results, no-result state, keyboard opening, arrow navigation, and closing with Escape even while a search input contains text.
@@ -87,12 +95,12 @@ Chromium interaction checks included:
 
 ## Deployment and maintenance
 
-1. Serve the entire `mamss/` directory over HTTPS. Keep the scripts, styles, manifest, worker, icons, and image variants at their supplied relative paths.
-2. No npm build is required. For local development: `python -m http.server 3000 --bind 0.0.0.0` from this directory.
-3. Set appropriate production compression, cache headers, and security headers on the actual host. The development Python server is not a production hosting solution.
+1. Serve the entire repository root over HTTPS. Keep the scripts, styles, manifest, worker, icons, and image variants at their supplied relative paths.
+2. Run `npm ci`, then `npm run build` after source changes. Preview using `npm run serve`. Production only needs the checked-in static outputs.
+3. Set appropriate production compression, cache headers, and security headers on the actual host. The development preview server is not a production hosting solution.
 4. Bump the cache version in `sw.js` whenever the offline public shell is changed. Test upgrades and clearing old caches before release.
 5. Have school management confirm current dates, contacts, content, external destinations, photo permissions, and privacy wording before publication.
-6. Online applications, appointment confirmations, message delivery, authentication, payments, push notifications, shared calendars, and cloud synchronisation would require separately designed and authorised backend integrations. None is represented as connected in this preview.
+6. Online applications, appointment confirmations, message delivery, authentication, payments, push notifications, shared calendars, and cloud synchronisation would require separately designed and authorised backend integrations. None is represented as connected on this site.
 
 ## 8. Native-scroll 3D animation
 
@@ -112,7 +120,7 @@ Added in `motion.js` and `motion.css`:
 - Keyboard-focused content settles immediately; pointer-pressed elements keep stable geometry for reliable clicks.
 - No external animation framework, WebGL renderer, stock photos, or replacement imagery.
 - Print output remains flat and excludes decorative 3D elements.
-- The public offline shell cache was updated to include the two new files.
+- Version 2 loads these files only after enabling effects; they are not mandatory offline-shell downloads.
 
 ### Motion checks
 
