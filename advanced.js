@@ -10,7 +10,7 @@ const deskTaskList=[
 ];
 const resourceKey=r=>r.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-$/,'');
 const resourceByKey=Object.fromEntries(resources.map(r=>[resourceKey(r),r]));
-const initialDesk=()=>({version:1,consent:false,role:'parent',entry:'JSS 1',tasks:[],favorites:[],reminders:[],settings:{text:'standard',contrast:false,motion:false,depth:false}});
+const initialDesk=()=>({version:1,consent:false,role:'parent',entry:'JSS 1',tasks:[],favorites:[],reminders:[],settings:{text:'standard',contrast:false,motion:false,depth:false,theme:'light'}});
 const lagosToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const validDate=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&Number(s.slice(0,4))>=1900&&Number(s.slice(0,4))<=2100&&!Number.isNaN(Date.parse(s+'T12:00:00Z'))&&new Date(s+'T12:00:00Z').toISOString().slice(0,10)===s;
 const dateLabel=(s,options={day:'numeric',month:'long',year:'numeric'})=>new Intl.DateTimeFormat('en-GB',{...options,timeZone:'UTC'}).format(new Date(s+'T12:00:00Z'));
@@ -30,11 +30,12 @@ function validateDesk(raw){
    ids.add(r.id);return{id:r.id,title:r.title.trim(),date:r.date,time:r.time,notes:r.notes};
   });
  }
- if(raw.settings){if(['standard','large','larger'].includes(raw.settings.text))d.settings.text=raw.settings.text;d.settings.contrast=raw.settings.contrast===true;d.settings.motion=raw.settings.motion===true;d.settings.depth=raw.settings.depth!==false;}
+ if(raw.settings){if(['standard','large','larger'].includes(raw.settings.text))d.settings.text=raw.settings.text;d.settings.contrast=raw.settings.contrast===true;d.settings.motion=raw.settings.motion===true;d.settings.depth=raw.settings.depth!==false;if(['light','dark'].includes(raw.settings.theme))d.settings.theme=raw.settings.theme;}
  return d;
 }
 let deskState=initialDesk();
 try{const saved=localStorage.getItem(DESK_KEY);if(saved){const candidate=validateDesk(JSON.parse(saved));if(candidate.consent)deskState=candidate;}}catch{/* Sandboxed previews may disallow browser storage. */}
+if(!deskState.consent)deskState.settings.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
 let deskTab='overview',calendarDate=lagosToday(),calendarMonth=calendarDate.slice(0,7),toastTimer;
 function toast(message){$('#app-toast').textContent=message;$('#app-toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#app-toast').classList.remove('visible'),4200);}
 function persistDesk(){
@@ -53,6 +54,11 @@ function applyReadingSettings(){
  const root=document.documentElement;
  root.dataset.depth=deskState.settings.depth===false?'off':'on';
  root.dataset.reading=deskState.settings.text;root.dataset.contrast=deskState.settings.contrast?'high':'normal';root.dataset.motion=deskState.settings.motion?'reduce':'normal';
+ root.dataset.theme=deskState.settings.theme==='dark'?'dark':'light';
+ const themeMeta=document.querySelector('meta[name="theme-color"]');
+ if(themeMeta)themeMeta.content=deskState.settings.theme==='dark'?'#161013':'#501c2f';
+ const themeBtn=document.getElementById('theme-toggle');
+ if(themeBtn){themeBtn.setAttribute('aria-pressed',String(deskState.settings.theme==='dark'));themeBtn.setAttribute('aria-label',deskState.settings.theme==='dark'?'Switch to light theme':'Switch to dark theme');}
  if(deskState.settings.motion&&heroPlaying){heroPlaying=false;stopHeroTimer();$('#hero-play').textContent='Play ▷';$('#hero-play').setAttribute('aria-pressed','false');$('#hero-play').setAttribute('aria-label','Play school photo slideshow');}
 }
 applyReadingSettings();
@@ -169,6 +175,7 @@ const siteSearchIndex=[
  ...resources.map(r=>({title:r.title,description:r.description,category:'resources',href:r.href,action:r.action,keywords:r.label+' '+r.category.join(' ')})),
  ...[['Welcome to MAMSS','about','Meet the school and discover its Catholic foundation.'],['Vision, mission & values','purpose','The principles and values that guide the school.'],['Principal’s welcome','principal','A message from Rev. Fr. Obinwa Anthony Chigozie.'],['Academics & learning','learning','Junior and senior secondary learning.'],['School facilities','facilities','ICT, science, art, internet, and school security.'],['Why choose MAMSS?','why-mamss','Academic learning, digital skills, and character.'],['School management team','leadership','Meet the principal, bursar, and vice principals.'],['Photo gallery & school life','school-life','Explore original school photographs.'],['Parent & alumni testimonials','testimonials','Read the voices published by the school.'],['Contact & directions','contact','Address, telephone numbers, email, and Maps directions.']].map(([title,anchor,description])=>({title,anchor,description,category:'school'})),
  {title:'Our history',description:'Request the school’s approved history from the office.',category:'school',action:'history'},
+ {title:'Dates to know',description:'Published exam dates from the 2026 flyer and the PTA notice.',category:'news',anchor:'dates-to-know'},
  {title:'School anthem',description:'Official lyrics and audio require school-supplied content.',category:'school',action:'anthem'},
  {title:'Admissions & JAMB announcements',description:'View the original admission and results posters.',category:'news',action:'announcements'},
  {title:'Official working visit',description:'News of the 29 April 2026 visit, published 2 June 2026.',category:'news',newsButton:'visit-news'},
@@ -204,8 +211,9 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 
 // Reading controls and an explicit device-storage consent flow.
 function showAccessibility(){
- showDialog(`<p class="eyebrow">MAKE YOURSELF COMFORTABLE</p><h2>A website that<br><em>reads your way.</em></h2><p>Adjust reading comfort for this visit. Preferences are remembered only if device saving is enabled.</p><fieldset class="access-fieldset"><legend>Body text size</legend><div class="text-size-options">${[['standard','Standard','Aa'],['large','Large','Aa'],['larger','Extra large','Aa']].map(([id,label,icon])=>`<label><input type="radio" name="text-size" value="${id}" ${deskState.settings.text===id?'checked':''}><span class="text-size-demo ${id}">${icon}</span><strong>${label}</strong></label>`).join('')}</div></fieldset><label class="settings-toggle"><span><b>Higher contrast</b><small>Stronger text and boundaries on light surfaces.</small></span><input id="setting-contrast" type="checkbox" ${deskState.settings.contrast?'checked':''}></label><label class="settings-toggle"><span><b>Reduce motion</b><small>Remove transitions, smooth scrolling, and slideshow playback.</small></span><input id="setting-motion" type="checkbox" ${deskState.settings.motion?'checked':''}></label><label class="settings-toggle"><span><b>3D scroll effects</b><small>Layered photos, perspective reveals, and gentle card tilt. Automatically paused when reduced motion is active.</small></span><input id="setting-depth" type="checkbox" ${deskState.settings.depth!==false?'checked':''}></label><div class="reading-preview"><span>READING PREVIEW</span><p>Great minds. Good hearts. Brighter futures. Every child deserves space to learn, belong, and become.</p></div><div class="action-row"><button class="button light" id="reset-accessibility">Reset reading settings</button><button class="text-link" data-advanced="device-settings">Device & privacy settings ↗</button></div><p class="small-note">Your browser’s zoom and built-in screen reader controls remain available. Use Ctrl / ⌘ K to search, and Escape to close dialogs.</p>`);
+ showDialog(`<p class="eyebrow">MAKE YOURSELF COMFORTABLE</p><h2>A website that<br><em>reads your way.</em></h2><p>Adjust reading comfort for this visit. Preferences are remembered only if device saving is enabled.</p><fieldset class="access-fieldset"><legend>Body text size</legend><div class="text-size-options">${[['standard','Standard','Aa'],['large','Large','Aa'],['larger','Extra large','Aa']].map(([id,label,icon])=>`<label><input type="radio" name="text-size" value="${id}" ${deskState.settings.text===id?'checked':''}><span class="text-size-demo ${id}">${icon}</span><strong>${label}</strong></label>`).join('')}</div></fieldset><label class="settings-toggle"><span><b>Higher contrast</b><small>Stronger text and boundaries on light surfaces.</small></span><input id="setting-contrast" type="checkbox" ${deskState.settings.contrast?'checked':''}></label><label class="settings-toggle"><span><b>Reduce motion</b><small>Remove transitions, smooth scrolling, and slideshow playback.</small></span><input id="setting-motion" type="checkbox" ${deskState.settings.motion?'checked':''}></label><label class="settings-toggle"><span><b>3D scroll effects</b><small>Layered photos, perspective reveals, and gentle card tilt. Automatically paused when reduced motion is active.</small></span><input id="setting-depth" type="checkbox" ${deskState.settings.depth!==false?'checked':''}></label><fieldset class="access-fieldset"><legend>Theme</legend><div class="text-size-options">${[['light','Light','☀'],['dark','Dark','☾']].map(([id,label,icon])=>`<label><input type="radio" name="appearance" value="${id}" ${deskState.settings.theme===id?'checked':''}><span class="text-size-demo ${id}">${icon}</span><strong>${label}</strong></label>`).join('')}</div></fieldset><div class="reading-preview"><span>READING PREVIEW</span><p>Great minds. Good hearts. Brighter futures. Every child deserves space to learn, belong, and become.</p></div><div class="action-row"><button class="button light" id="reset-accessibility">Reset reading settings</button><button class="text-link" data-advanced="device-settings">Device & privacy settings ↗</button></div><p class="small-note">Your browser’s zoom and built-in screen reader controls remain available. Use Ctrl / ⌘ K to search, and Escape to close dialogs.</p>`);
  $$('[name="text-size"]').forEach(r=>r.addEventListener('change',()=>{deskState.settings.text=r.value;applyReadingSettings();commitDesk();}));
+ $$('[name="appearance"]').forEach(r=>r.addEventListener('change',()=>{deskState.settings.theme=r.value;applyReadingSettings();commitDesk();}));
  $('#setting-contrast').addEventListener('change',e=>{deskState.settings.contrast=e.target.checked;applyReadingSettings();commitDesk();});
  $('#setting-depth').addEventListener('change',e=>{deskState.settings.depth=e.target.checked;applyReadingSettings();commitDesk();});
  $('#setting-motion').addEventListener('change',e=>{deskState.settings.motion=e.target.checked;applyReadingSettings();commitDesk();});
@@ -257,7 +265,8 @@ function showOfflineTools(){
  });
  $('#install-website')?.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;const status=$('#offline-status');await deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;status.textContent=choice.outcome==='accepted'?'Installation requested. Your browser will complete the setup.':'Installation cancelled. You can continue using the website normally.';});
 }
-const advancedActions={search:openSiteSearch,accessibility:showAccessibility,'device-settings':showDeviceSettings,'add-reminder':()=>showReminderEditor(),'export-calendar':()=>downloadCalendar(),'print-checklist':printChecklist,'download-checklist':()=>downloadFile('MAMSS-admission-checklist.txt',checklistText(),'text/plain;charset=utf-8'),offline:showOfflineTools};
+function toggleTheme(){deskState.settings.theme=deskState.settings.theme==='dark'?'light':'dark';applyReadingSettings();commitDesk();}
+const advancedActions={search:openSiteSearch,accessibility:showAccessibility,theme:toggleTheme,'device-settings':showDeviceSettings,'add-reminder':()=>showReminderEditor(),'export-calendar':()=>downloadCalendar(),'print-checklist':printChecklist,'download-checklist':()=>downloadFile('MAMSS-admission-checklist.txt',checklistText(),'text/plain;charset=utf-8'),offline:showOfflineTools};
 document.addEventListener('click',e=>{
  const button=e.target.closest('[data-advanced]');if(button&&advancedActions[button.dataset.advanced]){if(searchDialog.open)searchDialog.close();advancedActions[button.dataset.advanced]();}
  const save=e.target.closest('[data-save-resource]');if(save){const key=save.dataset.saveResource;toggleFavorite(key);if(!save.isConnected){const replacement=$(`[data-save-resource="${key}"]`,$('#desk-panel'));if(replacement)replacement.focus();else $('#desk-tab-saved').focus();}}

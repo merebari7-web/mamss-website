@@ -4062,10 +4062,12 @@ html[data-motion="reduce"] *:after {
     margin-bottom: 3px;
   }
 }
-/* Optional 3D never distorts the full-bleed hero or hides chapter content. */
-.mamss-site #home .hero-copy,
-.mamss-site #home .hero-visual,
-.mamss-site #home .hero-photo {
+/* Optional 3D never distorts the full-bleed hero or hides chapter content.
+   Only applies when the opt-in depth effects are active, so the v3
+   Ken Burns hero zoom stays free in the default experience. */
+html[data-depth="on"] .mamss-site #home .hero-copy,
+html[data-depth="on"] .mamss-site #home .hero-visual,
+html[data-depth="on"] .mamss-site #home .hero-photo {
   transform: none !important;
   filter: none !important;
 }
@@ -4134,4 +4136,875 @@ html[data-motion="reduce"] *:after {
 }
 .calendar-legend {
   font-size: 11px;
+}
+/* =====================================================================
+   MAMSS v3 — premium theme layer
+   Dark theme, quick-help assistant, dates strip, motion & performance.
+   The School Desk workspace intentionally keeps its paper surface in
+   dark mode (a warm "paper island" on the dark page).
+   ===================================================================== */
+:root {
+  --wine-fill: #6e243d;
+  --wine-fill-hover: #50192d;
+  --card: #fff;
+  --band: #f0ebe5;
+  --raised: #f7f2ee;
+  --gold-ink: #8a6524;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --paper: #161013;
+  --ink: #ece3df;
+  --muted: #a2949b;
+  --line: #33282f;
+  --rose: #251b22;
+  --wine: #c98ba4;
+  --wine-dark: #3a1a29;
+  --gold: #d2a65e;
+  --wine-fill: #7c3050;
+  --wine-fill-hover: #8d3a58;
+  --card: #1e171c;
+  --band: #120c10;
+  --raised: #251b22;
+  --gold-ink: #d2a65e;
+  color-scheme: dark;
+}
+html[data-theme="dark"] body {
+  background: var(--paper);
+}
+html[data-theme="dark"] button:focus-visible,
+html[data-theme="dark"] a:focus-visible,
+html[data-theme="dark"] summary:focus-visible,
+html[data-theme="dark"] input:focus-visible,
+html[data-theme="dark"] select:focus-visible,
+html[data-theme="dark"] textarea:focus-visible,
+html[data-theme="dark"] [tabindex]:focus-visible {
+  outline-color: #d2a65e;
+}
+/* Header, topbar bands and chrome */
+html[data-theme="dark"] .site-header {
+  background: #161013f2;
+  backdrop-filter: blur(10px);
+}
+html[data-theme="dark"] .menu-shade {
+  background: #000000b3;
+}
+html[data-theme="dark"] .nav-dropdown .dropdown-panel {
+  background: var(--card);
+}
+html[data-theme="dark"] .news-ribbon {
+  background: var(--card);
+  border-color: var(--line);
+}
+html[data-theme="dark"] .news-ribbon p {
+  color: var(--muted);
+}
+html[data-theme="dark"] .audience-links {
+  background: var(--card);
+}
+html[data-theme="dark"] .audience-card:hover {
+  background: var(--rose);
+}
+html[data-theme="dark"] .intro-image {
+  background: var(--raised);
+  border-color: var(--line);
+}
+html[data-theme="dark"] .intro-values b {
+  color: #d2a65e;
+}
+html[data-theme="dark"] .home-experience {
+  background: var(--band);
+}
+html[data-theme="dark"] .experience-card {
+  background: var(--card);
+  border-color: var(--line);
+}
+html[data-theme="dark"] .prep-preview {
+  background: #201812;
+  border-color: #3a2d22;
+}
+html[data-theme="dark"] .prep-art {
+  background: #2c2117;
+}
+html[data-theme="dark"] .news-section {
+  background: var(--paper);
+}
+html[data-theme="dark"] .news-card {
+  background: var(--card);
+}
+html[data-theme="dark"] .pta-news .pta-date {
+  background: #201820;
+}
+html[data-theme="dark"] .purpose-section {
+  background: var(--band);
+}
+html[data-theme="dark"] .purpose-grid > article {
+  background: var(--card);
+}
+html[data-theme="dark"] .core-values {
+  background: #1a1318;
+}
+html[data-theme="dark"] .principal-section {
+  background: var(--paper);
+}
+html[data-theme="dark"] .numbers-grid span {
+  color: #d9b8c6;
+}
+html[data-theme="dark"] .school-numbers .source-note {
+  color: #d3aabc;
+}
+html[data-theme="dark"] .prep-callout {
+  background: #201812;
+  border-color: #3a2d22;
+}
+html[data-theme="dark"] .facilities-section {
+  background: var(--band);
+}
+html[data-theme="dark"] #facility-panel {
+  background: var(--card);
+}
+html[data-theme="dark"] .filters button {
+  background: var(--card);
+  border-color: #4a3a42;
+}
+html[data-theme="dark"] .filters button.active {
+  background: var(--wine-fill);
+  border-color: var(--wine-fill);
+}
+html[data-theme="dark"] .testimonial-section {
+  background: var(--band);
+}
+html[data-theme="dark"] .testimonial-cards article {
+  background: var(--card);
+}
+html[data-theme="dark"] .testimonial-controls button {
+  background: var(--card);
+  border-color: #4a3a42;
+}
+html[data-theme="dark"] .admission-summary {
+  background: #201820;
+  border-color: #3a2d35;
+}
+html[data-theme="dark"] .admission-summary dl > div {
+  border-color: #3a2d35;
+}
+html[data-theme="dark"] .admission-summary dt {
+  color: #b3a49b;
+}
+html[data-theme="dark"] .admission-summary dd {
+  color: var(--ink);
+}
+html[data-theme="dark"] .admission-date-note {
+  background: #241b12;
+  border-color: #4a3a2a;
+}
+html[data-theme="dark"] .admission-date-note > span {
+  color: #d2a65e;
+  border-color: #6a4d24;
+}
+html[data-theme="dark"] .admission-date-note p {
+  color: #b3a49b;
+}
+html[data-theme="dark"] .admission-date-note strong {
+  color: #e6cfae;
+}
+html[data-theme="dark"] .admission-steps select {
+  background: var(--raised);
+  border-color: #4a3a42;
+  color: var(--ink);
+}
+html[data-theme="dark"] .resource-card {
+  background: var(--card);
+}
+html[data-theme="dark"] .portal-note {
+  background: #1a1318;
+}
+html[data-theme="dark"] .contact-methods article {
+  background: var(--card);
+}
+html[data-theme="dark"] .contact-methods a,
+html[data-theme="dark"] .contact-methods button {
+  border-color: #4a3a42;
+}
+html[data-theme="dark"] .contact-section {
+  background: var(--band);
+}
+html[data-theme="dark"] .contact-grid .button.light {
+  background: var(--wine-fill);
+  border-color: var(--wine-fill);
+}
+html[data-theme="dark"] .contact-grid .button.light:hover {
+  background: var(--wine-fill-hover);
+}
+html[data-theme="dark"] .contact-details {
+  border-color: #3a2d35;
+}
+html[data-theme="dark"] footer {
+  background: #120c10;
+}
+html[data-theme="dark"] .chapter-cta {
+  background: #6e243d;
+}
+html[data-theme="dark"] .outline-button {
+  border-color: #4a3a42;
+}
+html[data-theme="dark"]
+  .calendar-grid
+  button.outside-month:not(.selected):not(:where(.school-workspace *)) {
+  color: #8a7580;
+}
+/* Desk footnotes outside the paper island follow the dark palette */
+html[data-theme="dark"]
+  .desk-section
+  .desk-footnote:not(:where(.school-workspace *)) {
+  color: var(--muted);
+}
+/* Dialogs, search, forms */
+html[data-theme="dark"] dialog {
+  background: var(--card);
+}
+html[data-theme="dark"] .dialog-close {
+  background: var(--card);
+}
+html[data-theme="dark"] #dialog-content input,
+html[data-theme="dark"] #dialog-content textarea,
+html[data-theme="dark"] #dialog-content select {
+  background: var(--raised);
+  border-color: #4a3a42;
+  color: var(--ink);
+}
+html[data-theme="dark"] #dialog-content .notice {
+  background: #2a2118;
+  border-left-color: #8a6a35;
+  color: #cbb59a;
+}
+html[data-theme="dark"] #dialog-content .form-status {
+  background: var(--raised);
+}
+html[data-theme="dark"] #dialog-content .source-link {
+  color: #c98ba4;
+}
+html[data-theme="dark"] .search-dialog-top h2 {
+  color: #c98ba4;
+}
+html[data-theme="dark"] .search-dialog-top > button {
+  border-color: #4a3a42;
+  color: #c98ba4;
+}
+html[data-theme="dark"] .search-field-label {
+  color: #a2949b;
+}
+html[data-theme="dark"] .global-search-field {
+  border-color: #4a3a42;
+  background: var(--raised);
+}
+html[data-theme="dark"] .global-search-field > svg {
+  stroke: #a2949b;
+}
+html[data-theme="dark"] .global-search-field > input {
+  color: var(--ink);
+}
+html[data-theme="dark"] .global-search-field kbd {
+  border-color: #4a3a42;
+  color: #a2949b;
+}
+html[data-theme="dark"] .search-scopes button {
+  border-color: #4a3a42;
+  color: #a2949b;
+}
+html[data-theme="dark"] .search-scopes button.active {
+  background: var(--wine-fill);
+  border-color: var(--wine-fill);
+  color: #fff;
+}
+html[data-theme="dark"] #global-search-status {
+  color: #a2949b;
+}
+html[data-theme="dark"] #global-search-results > li {
+  border-color: var(--line);
+}
+html[data-theme="dark"] .global-search-result:hover,
+html[data-theme="dark"] .global-search-result:focus {
+  background: var(--raised);
+}
+html[data-theme="dark"] .search-result-symbol {
+  background: #2a2028;
+  color: #c98ba4;
+}
+html[data-theme="dark"] .global-search-result strong {
+  color: var(--ink);
+}
+html[data-theme="dark"] .global-search-result small {
+  color: #a2949b;
+}
+html[data-theme="dark"] .search-category {
+  border-color: #4a3a42;
+  color: #a2949b;
+}
+html[data-theme="dark"] .search-help {
+  border-color: var(--line);
+  color: #a2949b;
+}
+html[data-theme="dark"] .no-search-results > span {
+  color: #a2949b;
+}
+/* Desk surrounds (the workspace itself keeps its paper surface; its text
+   follows the light token values scoped on .school-workspace) */
+html[data-theme="dark"] .school-workspace {
+  color-scheme: light;
+  box-shadow: 0 24px 60px #00000066;
+}
+html[data-theme="dark"] .desk-section .section-heading > p {
+  color: var(--muted);
+}
+/* Floating controls */
+html[data-theme="dark"] #back-top {
+  background: var(--card);
+  color: #c98ba4;
+  border-color: var(--line);
+}
+html[data-theme="dark"] #app-toast {
+  background: #241722;
+  border-color: #4a3a42;
+  color: #f0e2e9;
+}
+/* High-contrast mode stays strong on the dark palette */
+html[data-theme="dark"][data-contrast="high"] {
+  --ink: #fff;
+  --muted: #cfc4c9;
+  --line: #6d5a66;
+  --wine: #e3aac4;
+}
+html[data-theme="dark"][data-contrast="high"] body {
+  background: #0f0a0d;
+}
+html[data-theme="dark"][data-contrast="high"] .chapter-heading p,
+html[data-theme="dark"][data-contrast="high"] .intro-copy p {
+  color: #e8e0dd;
+}
+html[data-theme="dark"][data-contrast="high"] .site-header {
+  background: #0f0a0d;
+}
+html[data-theme="dark"][data-contrast="high"] dialog {
+  background: #171015;
+}
+/* Small screens */
+@media (max-width: 1030px) {
+  html[data-theme="dark"] .site-header #navigation {
+    background: var(--paper);
+  }
+  html[data-theme="dark"] .nav-dropdown .dropdown-panel {
+    background: var(--card);
+    border-color: var(--line);
+  }
+}
+@media (max-width: 600px) {
+  html[data-theme="dark"] .mobile-dock {
+    background: #1e171cf2;
+    border-top-color: var(--line);
+    box-shadow: 0 -4px 18px #00000066;
+  }
+  html[data-theme="dark"] .mobile-dock a {
+    color: #a2949b;
+  }
+  html[data-theme="dark"] .mobile-dock a[aria-current="page"] {
+    color: #c98ba4;
+    background: #2c2028;
+  }
+  html[data-theme="dark"] .contact-details {
+    border-color: #3a2d35;
+  }
+  html[data-theme="dark"] .top-location:before {
+    border-color: #4a3a42;
+  }
+  html[data-theme="dark"] .carousel-tools button {
+    border-color: #4a3a42;
+  }
+  html[data-theme="dark"] .experience-grid,
+  html[data-theme="dark"] .news-grid {
+    scrollbar-color: #4a3a42 transparent;
+  }
+}
+/* ============================ v3 motion ============================ */
+.js #home .hero-photo {
+  animation: mamss-kenburns 24s ease-in-out infinite alternate;
+}
+html[data-motion="reduce"] #home .hero-photo {
+  animation: none;
+}
+@keyframes mamss-kenburns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.07);
+  }
+}
+.js #home .hero-copy > * {
+  animation: mamss-rise 0.75s cubic-bezier(0.19, 0.7, 0.3, 1) both;
+}
+.js #home .hero-copy > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.js #home .hero-copy > *:nth-child(3) {
+  animation-delay: 0.18s;
+}
+.js #home .hero-copy > *:nth-child(4) {
+  animation-delay: 0.26s;
+}
+.js #home .hero-copy > *:nth-child(5) {
+  animation-delay: 0.34s;
+}
+html[data-motion="reduce"] #home .hero-copy > * {
+  animation: none;
+}
+@keyframes mamss-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.js [data-page].is-active {
+  animation: mamss-page-in 0.5s cubic-bezier(0.19, 0.7, 0.3, 1);
+}
+html[data-motion="reduce"] [data-page].is-active {
+  animation: none;
+}
+@keyframes mamss-page-in {
+  from {
+    transform: translateY(14px);
+  }
+}
+.js .reveal {
+  transform: translateY(20px);
+  transition: transform 0.6s cubic-bezier(0.19, 0.7, 0.3, 1);
+  transition-delay: calc(var(--reveal-i, 0) * 70ms);
+}
+.js .reveal.is-revealed {
+  transform: none;
+}
+html[data-motion="reduce"] .reveal {
+  transform: none;
+  transition: none;
+}
+.site-header.is-scrolled {
+  box-shadow: 0 10px 30px #2c101b14;
+}
+html[data-theme="dark"] .site-header.is-scrolled {
+  box-shadow: 0 10px 30px #00000066;
+}
+/* Premium hover states */
+.resource-card:hover,
+.news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 38px #2c101b17;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+html[data-theme="dark"] .resource-card:hover,
+html[data-theme="dark"] .news-card:hover {
+  box-shadow: 0 16px 38px #00000073;
+}
+.experience-card:hover {
+  box-shadow: 0 16px 38px #2c101b17;
+}
+html[data-theme="dark"] .experience-card:hover {
+  box-shadow: 0 16px 38px #00000073;
+}
+.date-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px #2c101b14;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+html[data-theme="dark"] .date-card:hover {
+  box-shadow: 0 14px 34px #00000066;
+}
+/* ======================= v3 quick help assistant ======================= */
+.talk-dock {
+  position: fixed;
+  right: 22px;
+  bottom: 26px;
+  z-index: 58;
+}
+.talk-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--wine);
+  background: var(--wine-fill);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 30px #3c142452;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+.talk-fab svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.talk-fab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px #3c142466;
+}
+html[data-theme="dark"] .talk-fab {
+  background: #7c3050;
+  border-color: #7c3050;
+}
+.talk-panel {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  width: min(300px, calc(100vw - 44px));
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 24px 60px #2c101b40;
+  padding: 18px 16px 14px;
+  text-align: left;
+}
+html[data-theme="dark"] .talk-panel {
+  box-shadow: 0 24px 60px #00000080;
+}
+.talk-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.talk-eyebrow {
+  font: 600 9px/1.6 "DM Sans", sans-serif;
+  letter-spacing: 1.6px;
+  color: var(--gold-ink);
+  margin: 0 0 6px;
+}
+.talk-panel-head h3 {
+  font-size: 21px;
+  margin: 0;
+  line-height: 1.15;
+}
+.talk-panel-head > button {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1;
+  border-radius: 4px;
+}
+.talk-panel-head > button:hover {
+  background: var(--rose);
+}
+.talk-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 10px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.talk-option b {
+  color: var(--wine);
+  font-weight: 400;
+  font-size: 16px;
+}
+.talk-option:hover {
+  background: var(--rose);
+}
+.talk-note {
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 10px 10px 0;
+}
+/* Back-to-top stacks above the quick-help button */
+#back-top {
+  bottom: 96px;
+}
+@media (max-width: 600px) {
+  .talk-dock {
+    right: 14px;
+    bottom: 78px;
+  }
+  .talk-fab {
+    width: 52px;
+    height: 52px;
+  }
+  #back-top {
+    bottom: 146px;
+  }
+}
+/* ============================ v3 dates strip ============================ */
+.dates-section {
+  padding: 74px 0 80px;
+  border-top: 1px solid var(--line);
+}
+.dates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.date-card {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--card);
+  padding: 20px 18px;
+}
+.date-card .date-flag {
+  display: block;
+  font: 600 9px/1.7 "DM Sans", sans-serif;
+  letter-spacing: 1.4px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.date-card.confirm .date-flag {
+  color: var(--gold-ink);
+}
+.date-card h3 {
+  font-size: 23px;
+  margin: 0 0 7px;
+}
+.date-card p {
+  font-size: 12.5px;
+  line-height: 1.7;
+  margin: 0;
+}
+.date-card.past {
+  border-style: dashed;
+}
+.dates-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 28px;
+  margin-top: 4px;
+}
+.dates-actions .small-note {
+  margin: 0;
+  flex-basis: 100%;
+}
+/* ===================== v3 performance: skipped content ===================== */
+.js section.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+/* ============================ v3 print guard ============================ */
+@media print {
+  .talk-dock {
+    display: none !important;
+  }
+  html[data-theme="dark"] {
+    --paper: #fff;
+    --ink: #292529;
+    --muted: #665f61;
+    --line: #e4ddda;
+    --rose: #f3e9eb;
+    --wine: #6e243d;
+    --wine-dark: #441729;
+    --gold: #b08a4c;
+    --wine-fill: #6e243d;
+    --wine-fill-hover: #50192d;
+    --card: #fff;
+    --band: #fff;
+    --raised: #fff;
+    color-scheme: light;
+  }
+  html[data-theme="dark"] .js [data-page].is-active,
+  html[data-theme="dark"] .js #home .hero-photo,
+  html[data-theme="dark"] .js #home .hero-copy > *,
+  html[data-theme="dark"] .js .reveal {
+    animation: none;
+  }
+  html[data-theme="dark"] .js .reveal {
+    transform: none;
+  }
+}
+
+.theme-toggle .tt-sun {
+  display: none;
+}
+.theme-toggle[aria-pressed="true"] .tt-sun {
+  display: inline;
+}
+.theme-toggle[aria-pressed="true"] .tt-moon {
+  display: none;
+}
+.text-size-demo.light,
+.text-size-demo.dark {
+  font-size: 17px;
+  line-height: 1.2;
+}
+/* ===================== v3 dark theme — round 2 (axe-driven) ===================== */
+/* The v1 rule `button,a{transition:color .2s,...}` pins the light-theme
+   colour after a theme switch: when the --wine custom property changes,
+   the running transition never resolves and the link stays light-wine.
+   Keep the background/transform transitions; colour changes are instant. */
+a,
+button {
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+/* Cards that were still white on the dark page (both themes: --card is
+   #fff in light, so the light look is unchanged). */
+.value-grid article,
+.learning-card,
+.leadership-grid article,
+.student-grid > article {
+  background: var(--card);
+}
+/* Wine fills: the dark --wine remap is text-safe only, so fills use the
+   deep --wine-fill instead (white text keeps 8:1+). */
+html[data-theme="dark"] .button:not(.light) {
+  background: var(--wine-fill);
+  border-color: var(--wine-fill);
+}
+html[data-theme="dark"] .button:not(.light):hover {
+  background: var(--wine-fill-hover);
+  border-color: var(--wine-fill-hover);
+}
+html[data-theme="dark"] .button.light {
+  color: #4b1a2b;
+}
+html[data-theme="dark"] .contact-grid .button.light {
+  color: #fff;
+}
+html[data-theme="dark"] .facility-tabs button[aria-selected="true"] {
+  background: var(--wine-fill);
+  border-color: var(--wine-fill);
+  color: #fff;
+}
+/* The School Desk workspace stays a light paper island in dark mode:
+   re-scope every token so all var() usage inside resolves to the light
+   value (the island renders pixel-identical to the light theme, which
+   passes every axe scan). */
+html[data-theme="dark"] .school-workspace {
+  --paper: #fffaf2;
+  --ink: #251a1f;
+  --muted: #6e6259;
+  --line: #e6dcd7;
+  --rose: #f8f1f0;
+  --wine: #6e243d;
+  --wine-dark: #441729;
+  --gold: #a97e42;
+  --card: #fff;
+  --band: #f0ebe5;
+  --raised: #f7f2ee;
+  --gold-ink: #8a6524;
+  --wine-fill: #6e243d;
+  --wine-fill-hover: #50192d;
+}
+/* Legacy hardcoded light text (v1/v2) that loses contrast on the dark
+   page. Each override is scoped to dark and beats the older rules. */
+html[data-theme="dark"] .brand > span {
+  color: var(--wine);
+}
+html[data-theme="dark"] .brand small {
+  color: var(--muted);
+}
+html[data-theme="dark"] .section-note {
+  color: var(--muted);
+}
+html[data-theme="dark"] .news-meta {
+  color: var(--wine);
+}
+html[data-theme="dark"] .news-meta > span {
+  color: var(--muted);
+}
+html[data-theme="dark"] .news-card .news-summary {
+  color: var(--muted);
+}
+html[data-theme="dark"] .gallery-footer {
+  color: var(--muted);
+}
+html[data-theme="dark"] .pta-news .pta-date {
+  color: var(--ink);
+}
+html[data-theme="dark"] .pta-news .pta-date > b {
+  color: var(--wine);
+}
+html[data-theme="dark"] .pta-news .pta-date > small {
+  color: var(--muted);
+}
+html[data-theme="dark"] .footer-main a {
+  color: var(--muted);
+}
+html[data-theme="dark"] .footer-main a:hover {
+  color: var(--ink);
+}
+html[data-theme="dark"] .footer-main button {
+  color: var(--muted);
+}
+html[data-theme="dark"] .footer-motto > span {
+  color: var(--muted);
+}
+html[data-theme="dark"] .footer-motto > p {
+  color: var(--wine);
+}
+html[data-theme="dark"] .footer-bottom {
+  color: var(--muted);
+}
+html[data-theme="dark"] .core-values > div > span {
+  color: var(--wine);
+}
+html[data-theme="dark"] .core-values > p {
+  color: var(--muted);
+}
+html[data-theme="dark"] .core-values > p > span {
+  color: var(--muted);
+}
+html[data-theme="dark"] .why-list article > span {
+  color: var(--gold-ink);
+}
+html[data-theme="dark"] .signature > span {
+  color: var(--muted);
+}
+html[data-theme="dark"] .resource-search > span {
+  color: var(--muted);
+}
+html[data-theme="dark"] #resource-status {
+  color: var(--muted);
+}
+html[data-theme="dark"] .facility-tabs button {
+  color: var(--muted);
+}
+html[data-theme="dark"] .facility-tabs button > span {
+  color: #93808c;
+}
+html[data-theme="dark"] .facility-tabs button[aria-selected="true"] > span {
+  color: #fff;
+}
+html[data-theme="dark"] #facility-panel ul {
+  color: var(--muted);
+}
+html[data-theme="dark"] .value-grid .card-number,
+html[data-theme="dark"] .card-number {
+  color: var(--wine);
+}
+html[data-theme="dark"] .leadership-grid article > span {
+  color: var(--muted);
 }

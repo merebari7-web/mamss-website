@@ -685,6 +685,115 @@ async function test(name, fn) {
         assert.ok(r.links.includes(expected));
       await close(p);
     });
+    await test("v3: theme toggle switches the dark palette without persisting, and the reading dialog exposes appearance", async () => {
+      const p = await page();
+      const lightBg = await p.$eval("body", (e) => getComputedStyle(e).backgroundColor);
+      await click(p, "#theme-toggle");
+      assert.equal(
+        await p.$eval("html", (e) => e.dataset.theme),
+        "dark",
+      );
+      const darkBg = await p.$eval("body", (e) =>
+        getComputedStyle(e).backgroundColor,
+      );
+      assert.notEqual(lightBg, darkBg);
+      assert.equal(
+        await p.$eval("#theme-toggle", (e) => e.getAttribute("aria-pressed")),
+        "true",
+      );
+      await p.evaluate(() => {
+        MAMSS.go("school-desk");
+        showAccessibility();
+      });
+      await click(p, 'input[name="appearance"][value="dark"]');
+      assert.equal(
+        await p.$eval("html", (e) => e.dataset.theme),
+        "dark",
+      );
+      await click(p, "#reset-accessibility");
+      assert.equal(
+        await p.$eval("html", (e) => e.dataset.theme),
+        "light",
+      );
+      await p.keyboard.press("Escape");
+      await click(p, "#theme-toggle");
+      assert.equal(
+        await p.$eval("html", (e) => e.dataset.theme),
+        "dark",
+      );
+      assert.equal(
+        await p.evaluate(() => localStorage.getItem("mamss.desk.v1")),
+        null,
+      );
+      assert.deepEqual(p.errors, []);
+      await close(p);
+    });
+    await test("v3: dark theme keeps home and desk passing accessibility scans", async () => {
+      const p = await page(1440);
+      await click(p, "#theme-toggle");
+      for (const route of ["home", "school-desk"]) {
+        await p.evaluate((id) => MAMSS.go(id), route);
+        assert.deepEqual(await scan(p), [], route);
+      }
+      assert.equal(await overflow(p), false);
+      assert.deepEqual(p.errors, []);
+      await close(p);
+    });
+    await test("v3: quick help assistant opens the school's own information with accessible focus management", async () => {
+      const p = await page();
+      assert.equal(await p.$eval("#talk-panel", (e) => e.hidden), true);
+      await click(p, "#talk-fab");
+      assert.equal(await p.$eval("#talk-panel", (e) => e.hidden), false);
+      assert.equal(
+        await p.evaluate(() => document.activeElement.id),
+        "talk-close",
+      );
+      assert.deepEqual(await scan(p), []);
+      await click(p, '[data-talk="admissions"]');
+      assert.equal(await p.$eval("#talk-panel", (e) => e.hidden), true);
+      assert.equal(await p.$eval("#content-dialog", (e) => e.open), true);
+      await p.keyboard.press("Escape");
+      await p.keyboard.down("Control");
+      await p.keyboard.press("k");
+      await p.keyboard.up("Control");
+      await p.keyboard.press("Escape");
+      assert.equal(await p.$eval("#content-dialog", (e) => e.open), false);
+      await click(p, "#talk-fab");
+      await p.keyboard.press("Escape");
+      assert.equal(await p.$eval("#talk-panel", (e) => e.hidden), true);
+      assert.equal(
+        await p.evaluate(() => document.activeElement.id),
+        "talk-fab",
+      );
+      const wa = await p.$eval(".talk-option[href]", (e) => e.href);
+      assert.match(wa, /^https:\/\/wa\.me\/2349013653629$/);
+      assert.deepEqual(p.errors, []);
+      await close(p);
+    });
+    await test("v3: dates strip is present and reachable through site search; lower sections skip layout", async () => {
+      const p = await page();
+      assert.equal((await p.$$(".date-card")).length, 5);
+      await p.keyboard.down("Control");
+      await p.keyboard.press("k");
+      await p.keyboard.up("Control");
+      await p.type("#global-search", "dates to know");
+      await p.keyboard.press("Enter");
+      await wait(120);
+      assert.equal(
+        await p.evaluate(() => document.activeElement.id),
+        "dates-to-know",
+      );
+      const cv = await p.evaluate(
+        () =>
+          [...document.querySelectorAll("section.cv-auto")].length >= 3 &&
+          getComputedStyle(
+            document.querySelector("section.cv-auto"),
+          ).contentVisibility === "auto",
+      );
+      assert.ok(cv);
+      assert.deepEqual(p.errors, []);
+      await close(p);
+    });
   } catch (e) {
     failed++;
     console.error(e);

@@ -371,6 +371,118 @@
       .catch(() => {});
   syncMenu();
   loadDepth();
+  // ==================== MAMSS v3 runtime ====================
+  // Quick-help assistant: floating, closed by default, opens the school's own
+  // information. It never composes or sends a message.
+  const talkFab = byId("talk-fab"),
+    talkPanel = byId("talk-panel");
+  let talkLastFocus = null;
+  function setTalk(open) {
+    if (!talkPanel) return;
+    talkPanel.hidden = !open;
+    talkFab.setAttribute("aria-expanded", String(open));
+    talkFab.setAttribute("aria-label", open ? "Close quick help" : "Open quick help");
+    if (open) {
+      byId("talk-close").focus({ preventScroll: true });
+    } else if (talkLastFocus) {
+      const last = talkLastFocus;
+      talkLastFocus = null;
+      if (last.isConnected) last.focus({ preventScroll: true });
+    }
+  }
+  if (talkFab && talkPanel) {
+    talkFab.addEventListener("click", () => {
+      if (!talkPanel.hidden) {
+        setTalk(false);
+        return;
+      }
+      talkLastFocus = document.activeElement;
+      setTalk(true);
+    });
+    byId("talk-close").addEventListener("click", () => setTalk(false));
+    talkPanel.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setTalk(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = [...talkPanel.querySelectorAll("button,a")].filter(
+        (el) => el.getClientRects().length && !el.disabled,
+      );
+      const first = items[0],
+        last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus({ preventScroll: true });
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus({ preventScroll: true });
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (talkPanel.hidden || e.target.closest("#talk-dock")) return;
+      setTalk(false);
+    });
+    talkPanel.addEventListener("click", (e) => {
+      const opt = e.target.closest("[data-talk]");
+      if (!opt) return;
+      talkLastFocus = null; // the opened dialog takes over focus management
+      setTalk(false);
+      if (opt.dataset.talk === "admissions") featureActions["admissions"]();
+      else if (opt.dataset.talk === "calendar") featureActions["calendar"]();
+      else if (opt.dataset.talk === "visit") {
+        featureActions["contact-form"]();
+        const subject = byId("contact-subject");
+        if (subject) subject.value = "School visit";
+      }
+    });
+  }
+  // Scroll reveals: progressive enhancement, disabled for reduced motion.
+  if ("IntersectionObserver" in window) {
+    const motionOff = () =>
+      matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      document.documentElement.dataset.motion === "reduce";
+    if (!motionOff()) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries)
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-revealed");
+              io.unobserve(entry.target);
+            }
+        },
+        { rootMargin: "0px 0px -8% 0px", threshold: 0.06 },
+      );
+      const revealSel =
+        ".section-heading, .experience-card, .news-card, .purpose-grid > article, .leadership-grid article, .testimonial-cards article, .admission-steps article, .contact-methods article, .numbers-grid > div, .date-card, .resource-card, .facility-grid article";
+      document.querySelectorAll(revealSel).forEach((el, i) => {
+        el.classList.add("reveal");
+        el.style.setProperty("--reveal-i", String(i % 6));
+        io.observe(el);
+      });
+    }
+  }
+  // Below-the-fold sections skip layout until near the viewport.
+  document.querySelectorAll(".site-page").forEach((page) => {
+    page.querySelectorAll(":scope > section").forEach((sec, i) => {
+      if (i > 0 && !sec.classList.contains("hero")) sec.classList.add("cv-auto");
+    });
+  });
+  // A soft shadow tells you the header is floating above the content.
+  const header = document.querySelector(".site-header");
+  let hdrFrame = false;
+  const headerScroll = () => {
+    if (hdrFrame) return;
+    hdrFrame = true;
+    requestAnimationFrame(() => {
+      header.classList.toggle("is-scrolled", scrollY > 8);
+      hdrFrame = false;
+    });
+  };
+  window.addEventListener("scroll", headerScroll, { passive: true });
+  headerScroll();
+
   let initial = "home";
   try {
     initial = decodeURIComponent(location.hash.slice(1)) || "home";
