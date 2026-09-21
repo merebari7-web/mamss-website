@@ -4746,8 +4746,13 @@ html[data-theme="dark"] .talk-panel {
 }
 @media (max-width: 600px) {
   .talk-dock {
-    right: 14px;
+    left: 14px;
+    right: auto;
     bottom: 78px;
+  }
+  .talk-panel {
+    left: 0;
+    right: auto;
   }
   .talk-fab {
     width: 52px;
@@ -5007,4 +5012,32 @@ html[data-theme="dark"] .card-number {
 }
 html[data-theme="dark"] .leadership-grid article > span {
   color: var(--muted);
+}
+
+/* ================= v3 dark theme — round 3 (premium layer) ================= */
+/* The premium layer uses fixed light surfaces; in dark mode they follow
+   the dark tokens (specificity beats premium.css, which is bundled later). */
+html[data-theme="dark"] .audience-tabs button.active {
+  background: var(--wine-fill);
+}
+html[data-theme="dark"] .audience-links > a {
+  background: var(--card);
+}
+html[data-theme="dark"] .campus-story {
+  background: var(--band);
+  border-block-color: var(--line);
+}
+html[data-theme="dark"] .home-invitation {
+  background: var(--paper);
+}
+html[data-theme="dark"] .visit-callout {
+  background: var(--card);
+}
+
+/* Theme/contrast switches jump instantly: a crossfade would leave colours
+   mid-blend, which accessibility scans (and users) can sample. */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
 }

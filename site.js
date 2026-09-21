@@ -463,10 +463,28 @@
       });
     }
   }
+  // Freeze transitions for two frames whenever the palette switches, so
+  // colours never sit mid-blend (deterministic for scans and users).
+  {
+    const rootEl = document.documentElement;
+    let switchTimer = 0;
+    new MutationObserver(() => {
+      rootEl.classList.add("theme-switching");
+      cancelAnimationFrame(switchTimer);
+      switchTimer = requestAnimationFrame(() =>
+        requestAnimationFrame(() =>
+          rootEl.classList.remove("theme-switching"),
+        ),
+      );
+    }).observe(rootEl, {
+      attributes: true,
+      attributeFilter: ["data-theme", "data-contrast"],
+    });
+  }
   // Below-the-fold sections skip layout until near the viewport.
   document.querySelectorAll(".site-page").forEach((page) => {
     page.querySelectorAll(":scope > section").forEach((sec, i) => {
-      if (i > 0 && !sec.classList.contains("hero")) sec.classList.add("cv-auto");
+      if (i > 0 && !sec.classList.contains("hero") && !sec.querySelector('[data-scroll-grid]')) sec.classList.add("cv-auto");
     });
   });
   // A soft shadow tells you the header is floating above the content.
