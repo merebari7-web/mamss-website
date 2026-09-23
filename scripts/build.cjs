@@ -15,7 +15,8 @@ const CHAPTERS = {
     title: "Our school | MAMSS",
     description:
       "Meet the community, vision, values and people behind Mater Misericordiae Secondary School — a Spiritan Catholic school in Rumuomasi, Port Harcourt.",
-    image: "visit001.webp",
+    image: "og/our-school.jpg",
+    imageAlt: "The MAMSS community welcomes visiting clergy, framed on burgundy beside the school crest.",
   },
   learning: {
     slug: "learning",
@@ -23,7 +24,8 @@ const CHAPTERS = {
     title: "Learning | MAMSS",
     description:
       "Junior and senior secondary learning, facilities and academic life at Mater Misericordiae Secondary School in Rumuomasi, Port Harcourt.",
-    image: "mater_class.webp",
+    image: "og/learning.jpg",
+    imageAlt: "Students in a MAMSS classroom lesson, framed on burgundy beside the school crest.",
   },
   life: {
     slug: "school-life",
@@ -31,7 +33,8 @@ const CHAPTERS = {
     title: "School life | MAMSS",
     description:
       "Photo gallery, community voices and everyday school life at Mater Misericordiae Secondary School in Rumuomasi, Port Harcourt.",
-    image: "mamss_students.webp",
+    image: "og/school-life.jpg",
+    imageAlt: "The MAMSS school marching band performing, framed on burgundy beside the school crest.",
   },
   admissions: {
     slug: "admissions",
@@ -39,7 +42,8 @@ const CHAPTERS = {
     title: "Admissions | MAMSS",
     description:
       "Admission to JSS 1, JSS 2, SS 1 and SS 2 at Mater Misericordiae Secondary School. Application forms, assessment guidance and how to contact the school office.",
-    image: "mamssads2027.webp",
+    image: "og/admissions.jpg",
+    imageAlt: "The MAMSS 2026/2027 admissions flyer, framed on burgundy beside the school crest.",
     faq: true,
   },
   resources: {
@@ -48,7 +52,8 @@ const CHAPTERS = {
     title: "Resources & portals | MAMSS",
     description:
       "Official school portals, results checking, the CBT platform, e-library and parent resources for the MAMSS community.",
-    image: "a1.webp",
+    image: "og/resources.jpg",
+    imageAlt: "MAMSS staff and students in a group photograph, framed on burgundy beside the school crest.",
   },
   desk: {
     slug: "school-desk",
@@ -56,7 +61,8 @@ const CHAPTERS = {
     title: "My school desk | MAMSS",
     description:
       "Your personal admission checklist, planner and saved resources. Private by design — nothing is saved without your permission.",
-    image: "visit031.webp",
+    image: "og/school-desk.jpg",
+    imageAlt: "A MAMSS student welcoming visiting clergy, framed on burgundy beside the school crest.",
   },
   contact: {
     slug: "contact",
@@ -64,7 +70,8 @@ const CHAPTERS = {
     title: "Contact | MAMSS",
     description:
       "Contact Mater Misericordiae Secondary School in Rumuomasi, Port Harcourt — phone, WhatsApp, email, directions and visit enquiries.",
-    image: "visit005.webp",
+    image: "og/contact.jpg",
+    imageAlt: "A school presentation in a MAMSS classroom, framed on burgundy beside the school crest.",
   },
 };
 const PRIMARY = {
@@ -197,7 +204,11 @@ function chapterHead(html, key) {
     )
     .replace(
       /<meta content="[^"]*" property="og:image"\/>/,
-      `<meta content="${LIVE}assets/${meta.image}" property="og:image"/>`,
+      `<meta content="${LIVE}assets/${meta.image}" property="og:image"/><meta content="Mater Misericordiae Secondary School" property="og:site_name"/><meta content="en_NG" property="og:locale"/><meta content="1200" property="og:image:width"/><meta content="630" property="og:image:height"/><meta content="${meta.imageAlt}" property="og:image:alt"/>`,
+    )
+    .replace(
+      /<meta content="summary_large_image" name="twitter:card"\/>/,
+      `<meta content="summary_large_image" name="twitter:card"/><meta content="${LIVE}assets/${meta.image}" name="twitter:image"/>`,
     );
   const faqMatch = head.match(
     /<script type="application\/ld\+json">\{"@context": "https:\/\/schema\.org", "@type": "FAQPage"[\s\S]*?<\/script>/,
@@ -266,6 +277,12 @@ function chapterHead(html, key) {
     doc = chapterHead(doc, key);
     doc = rewriteChapterLinks(doc, key);
     doc = rewriteChapterAssets(doc);
+    /* The chapter's own opening photograph is above the fold on its page. */
+    doc = doc.replace(
+      /(<img[^>]*class="chapter-photo"[^>]*?)(\s*\/?>)/,
+      (match, tag, tail) =>
+        tag.replace(/\sloading="lazy"/, "") + ' fetchpriority="high"' + tail,
+    );
     fs.mkdirSync(meta.slug, { recursive: true });
     fs.writeFileSync(path.join(meta.slug, "index.html"), doc);
   }

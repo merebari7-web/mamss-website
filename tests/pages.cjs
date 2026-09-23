@@ -287,6 +287,78 @@ async function test(name, fn) {
       await p.setOfflineMode(false);
       await close(p);
     });
+    await test("every page ships a branded 1200x630 share card and PNG favicon", async () => {
+      const p = await page("admissions/");
+      const hub = await page("");
+      for (const document_ of [hub, p]) {
+        const card = await document_.evaluate(() => ({
+          image: document.querySelector('meta[property="og:image"]')?.content,
+          width: document.querySelector('meta[property="og:image:width"]')?.content,
+          height: document.querySelector('meta[property="og:image:height"]')?.content,
+          alt: document.querySelector('meta[property="og:image:alt"]')?.content,
+          siteName: document.querySelector('meta[property="og:site_name"]')?.content,
+          twitter: document.querySelector('meta[name="twitter:image"]')?.content,
+          locale: document.querySelector('meta[property="og:locale"]')?.content,
+        }));
+        assert.ok(card.image.startsWith("https://merebari7-web.github.io/mamss-website/assets/og/"), card.image);
+        assert.equal(card.width, "1200");
+        assert.equal(card.height, "630");
+        assert.ok(card.alt.length > 20);
+        assert.equal(card.siteName, "Mater Misericordiae Secondary School");
+        assert.equal(card.twitter, card.image);
+        assert.equal(card.locale, "en_NG");
+        const file = path.join(root, "assets", "og", card.image.split("/").pop());
+        const size = fs.statSync(file).size;
+        assert.ok(size > 20000 && size < 300000, file + " " + size);
+      }
+      const favicon = await hub.evaluate(() => document.querySelector('link[rel="icon"]')?.href);
+      assert.ok(favicon.includes("favicon-48.png"));
+      assert.equal(fs.existsSync(path.join(root, "assets", "favicon-48.png")), true);
+      await close(p);
+      await close(hub);
+    });
+    await test("share cards are exactly 1200 by 630 JPEG files", () => {
+      const jpegSize = (raw) => {
+        let offset = 2;
+        while (offset + 9 < raw.length) {
+          if (raw[offset] !== 0xff) { offset++; continue; }
+          const marker = raw[offset + 1];
+          const length = raw.readUInt16BE(offset + 2);
+          if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker))
+            return { height: raw.readUInt16BE(offset + 5), width: raw.readUInt16BE(offset + 7) };
+          offset += 2 + length;
+        }
+        return null;
+      };
+      const cards = fs.readdirSync(path.join(root, "assets", "og"));
+      assert.equal(cards.length, 8);
+      const expected = new Set(["home", ...chapters.map(([, slug]) => slug)]);
+      assert.deepEqual(new Set(cards.map((f) => f.replace(/\.jpg$/, ""))), expected);
+      for (const card of cards) {
+        const raw = fs.readFileSync(path.join(root, "assets", "og", card));
+        assert.equal(raw[0], 0xff);
+        assert.equal(raw[1], 0xd8); // JPEG magic bytes
+        assert.deepEqual(jpegSize(raw), { width: 1200, height: 630 }, card);
+      }
+    });
+    await test("chapter opening photographs load eagerly with high priority", async () => {
+      const photoChapters = ["our-school", "learning", "school-life", "admissions"];
+      for (const slug of photoChapters) {
+        const p = await page(slug + "/");
+        const photo = await p.$eval("img.chapter-photo", (e) => ({
+          priority: e.getAttribute("fetchpriority"),
+          lazy: e.getAttribute("loading"),
+        }));
+        assert.deepEqual(photo, { priority: "high", lazy: null }, slug);
+        await close(p);
+      }
+      const hub = await page("");
+      assert.equal(
+        await hub.$eval("img.chapter-photo", (e) => e.getAttribute("loading")),
+        "lazy",
+      );
+      await close(hub);
+    });
     await test("sitemap, robots and the 404 page describe the real addresses", async () => {
       const sitemap = fs.readFileSync(path.join(root, "sitemap.xml"), "utf8");
       for (const [, slug] of chapters)

@@ -1,4 +1,8 @@
-# Advanced improvements — premium school website, version 4.0
+# Advanced improvements — premium school website, version 4.1
+
+## Version 4.1 — share cards, icon and opening speed
+
+Every page now references a branded 1200×630 JPEG share card (crest, phrase, motto and a chapter photograph on burgundy) through `og:image`, `og:image:alt`, `og:image:width/height`, `og:site_name`, `og:locale` and `twitter:image`, so link previews in WhatsApp, Facebook, X and LinkedIn look designed rather than cropped. The cards are generated from the school's own fonts and photographs by `scripts/make-share-images.py` and committed like other media. The favicon is a PNG for Safari compatibility, and each chapter document loads its above-the-fold photograph with `fetchpriority="high"`. The offline cache is `mamss-public-v11`.
 
 ## Version 4.0 — real chapter addresses
 

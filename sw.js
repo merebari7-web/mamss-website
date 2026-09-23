@@ -1,7 +1,7 @@
 /* Opt-in public caching only. School portals and other Pages projects are separate. */
 const ROOT = new URL("./", self.location.href).href;
 const ROOT_PATH = new URL(ROOT).pathname;
-const CACHE = "mamss-public-v10:" + ROOT_PATH;
+const CACHE = "mamss-public-v11:" + ROOT_PATH;
 /* Each chapter is a real document in its own directory. */
 const PAGES = [
   "our-school",
