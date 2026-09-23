@@ -1,8 +1,37 @@
-# MAMSS — school website, version 4.1
+# MAMSS — school website, version 4.1.1
 
 Live: **https://merebari7-web.github.io/mamss-website/**
 
 A premium, heritage-inspired redesign of the public school website: burgundy, cream and gold, authentic school photography, a focused eight-chapter layout and a local-first School Desk. The separately hosted **[MAMSS Prep](https://merebari7-web.github.io/mamss-prep/)** remains linked and unchanged. The source school site at mamss.com.ng and its private systems are not modified by this repository.
+
+## Version 4.1.1 — search-discovery groundwork
+
+The site is technically ready for search engines but was not yet *indexed* — searching the school's name returned other schools and directories, not this site. This release sharpens what search engines can read and adds the pieces needed for submission:
+
+- **Honest, specific home title:** "Mater Misericordiae Secondary School (MAMSS) | Port Harcourt", with the school motto ("Service to God and Humanity") added to the `School` structured data.
+- **Four more admissions FAQs** (checking results, fees, term dates, visiting before applying) in both the visible page and the `FAQPage` structured data — nine in total. Every answer is honest: fees and term dates are not published online, and answers link to the real resources/contact pages and phone numbers instead of inventing numbers.
+- **IndexNow key** (`28bf04f6db25398f598542e1388b6f92.txt` at the site root) so Bing, Yahoo and Yandex can be pinged when pages change; see the *Search engines* section below for Google, which uses its own process.
+- **Layout fix:** FAQ sections are no longer `content-visibility` candidates. At phone widths the 640px size estimate could run short of the expanded FAQ list, leaving the last questions' geometry overlapping the dark call-to-action band and failing automated colour-contrast scans; FAQ sections are small enough that skipping layout there gained nothing.
+- The offline cache version is now `mamss-public-v12` so existing offline visitors receive the updated documents.
+
+## Search engines
+
+Google does not support IndexNow, so the reliable path for Google is **Google Search Console** (a one-time, school-owned step):
+
+1. Sign in at search.google.com/search-console with the school's Google account.
+2. Add a property for `https://merebari7-web.github.io/mamss-website/` and verify ownership (the URL-prefix method works for GitHub Pages paths).
+3. Submit `https://merebari7-web.github.io/mamss-website/sitemap.xml`.
+4. Use *URL inspection → Request indexing* for the home page and each chapter address.
+
+Bing, Yahoo and Yandex accept IndexNow. The key file lives at the site root: `https://merebari7-web.github.io/mamss-website/28bf04f6db25398f598542e1388b6f92.txt`. Because the site lives on a path (not the host root), submissions must pass `keyLocation`:
+
+```
+curl -X POST https://api.indexnow.org/indexnow \
+  -H "Content-Type: application/json; charset=utf-8" \
+  -d '{"host":"merebari7-web.github.io","key":"28bf04f6db25398f598542e1388b6f92","keyLocation":"https://merebari7-web.github.io/mamss-website/28bf04f6db25398f598542e1388b6f92.txt","urlList":["https://merebari7-web.github.io/mamss-website/","https://merebari7-web.github.io/mamss-website/our-school/","https://merebari7-web.github.io/mamss-website/learning/","https://merebari7-web.github.io/mamss-website/school-life/","https://merebari7-web.github.io/mamss-website/admissions/","https://merebari7-web.github.io/mamss-website/resources/","https://merebari7-web.github.io/mamss-website/school-desk/","https://merebari7-web.github.io/mamss-website/contact/"]}'
+```
+
+Note: no one can guarantee a ranking position. What this repository controls — real addresses, sitemaps, canonical URLs, structured data, honest content, fast pages — is in place. Rankings improve over weeks to months as the site gets indexed and linked from places the school controls (the school's Facebook page, WhatsApp channels, parish and alumni groups), and a custom domain would eventually help too.
 
 ## Version 4.1 — branded share cards, PNG favicon, faster chapter openings
 
@@ -79,6 +108,7 @@ The preview server binds to `0.0.0.0` for hosted previews. It is not a productio
 | `index.html` | Authored source of all content: eight chapters, metadata, navigation and built inline loading-screen regions. Cross-chapter links are rewritten to real addresses by the build |
 | `our-school/` … `contact/` | Build-generated chapter documents (`slug/index.html`), each with its own metadata; regenerate with `npm run build` after editing `index.html` |
 | `sitemap.xml`, `robots.txt`, `404.html` | Search-engine map of all eight addresses, crawl rules and the branded not-found page |
+| `28bf04f6db25398f598542e1388b6f92.txt` | IndexNow key file (Bing/Yahoo/Naver discovery). Resubmit all addresses after a release: see “Search engines” below |
 | `assets/og/`, `scripts/make-share-images.py` | Branded 1200×630 share cards (one per page) and the Python/Pillow generator that produces them and the PNG favicon |
 | `loading.html`, `loading.css`, `loading.js` | Authored loading screen; build embeds it inside the marked regions of `index.html` |
 | `premium.css`, `premium.js` | Version-3 visual refinement, school stories, visit enquiry and photo-viewer enhancements; bundled last |

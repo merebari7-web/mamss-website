@@ -5,7 +5,7 @@
   const pages = [...document.querySelectorAll("[data-page]")];
   const byId = (id) => document.getElementById(id);
   const titles = {
-    home: "MAMSS | A Catholic education. A future with purpose.",
+    home: "Mater Misericordiae Secondary School (MAMSS) | Port Harcourt",
     school: "Our school | MAMSS",
     learning: "Learning | MAMSS",
     life: "School life | MAMSS",
@@ -579,7 +579,7 @@
   // Below-the-fold sections skip layout until near the viewport.
   document.querySelectorAll(".site-page").forEach((page) => {
     page.querySelectorAll(":scope > section").forEach((sec, i) => {
-      if (i > 0 && !sec.classList.contains("hero") && !sec.querySelector('[data-scroll-grid]')) sec.classList.add("cv-auto");
+      if (i > 0 && !sec.classList.contains("hero") && !sec.classList.contains("faq-section") && !sec.querySelector('[data-scroll-grid]')) sec.classList.add("cv-auto");
     });
   });
   // A soft shadow tells you the header is floating above the content.
