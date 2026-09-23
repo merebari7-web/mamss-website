@@ -1,8 +1,33 @@
-# MAMSS — school website, version 3.1
+# MAMSS — school website, version 3.2
 
 Live: **https://merebari7-web.github.io/mamss-website/**
 
 A premium, heritage-inspired redesign of the public school website: burgundy, cream and gold, authentic school photography, a focused eight-chapter layout and a local-first School Desk. The separately hosted **[MAMSS Prep](https://merebari7-web.github.io/mamss-prep/)** remains linked and unchanged. The source school site at mamss.com.ng and its private systems are not modified by this repository.
+
+## Version 3.2 — a school-connected tier
+
+Version 3.2 adds an optional server tier on Netlify while keeping the published static site working exactly as before. **This is the release where the website stops being purely local.** Two features now contact a server, and both are entered deliberately by the visitor:
+
+- **Send a visit enquiry to the school.** The guided enquiry still prepares an email draft, a copy and a text download. It now also offers to deliver the enquiry to the school office, where it is stored in a Netlify Postgres database so staff can read and answer it. The visitor supplies their own name and an email address or phone number, and must tick an explicit consent box. Nothing is sent until that button is pressed.
+- **An assistant for published information.** A chat helper answers questions from a knowledge base transcribed from this site's own content. It runs through Netlify AI Gateway. It cannot apply, book, take payment, confirm a date, or reach any student record, result or portal, and it is instructed to refuse rather than invent fees, places or future examination dates.
+
+Supporting work in the same release:
+
+- **Staff enquiry desk** at `/staff`, protected by Netlify Identity. Staff triage each enquiry (new / read / answered / closed) and keep an internal note. Holding an account is not sufficient: every request re-checks for an explicit `staff` or `admin` role, so an open signup cannot read a family's contact details.
+- **Scroll-linked 3D depth** using native CSS scroll-driven animations, so the effect is composited by the browser rather than driven by a JavaScript animation loop. Content rises out of the page plane, photographs drift inside their frames, and cards tilt slightly under a fine pointer. It is disabled entirely by system reduced motion and by the School Desk motion preference, and no transform grows an element horizontally, so no chapter can overflow.
+- **Platform hardening:** a content security policy and security headers, immutable caching for versioned bundles with always-revalidated HTML, permanent redirects preserving the old GitHub Pages project links, a `robots.txt` that keeps the staff area and the API out of search results, and rate limiting on both public endpoints.
+
+### What the server tier actually receives
+
+| Feature | Sent to a server | Stored | Who can read it |
+|---|---|---|---|
+| Ordinary browsing, search, School Desk, checklist, planner, reminders | Nothing | This browser only, after opt-in | The visitor |
+| Guided enquiry — email draft / copy / download | Nothing | Page memory only | The visitor |
+| Guided enquiry — **send to the school** | Name, email and/or phone, chosen class, proposed day/time, topics, question | Netlify Postgres, until staff delete it | School staff with a role |
+| **Assistant** | The typed question and that conversation's turns | Not stored by the site; processed by the AI provider | Nobody, after the reply |
+| Capability check | Nothing but the request itself | Not stored | Nobody |
+
+The capability check runs only after a visitor opens quick help or reaches the enquiry review step. A visit that touches neither feature still contacts no service. There is still no analytics, no advertising, no tracking cookie and no third-party script on the public page.
 
 ## Version 3.1 — branded readiness screen
 
@@ -18,7 +43,7 @@ A full-screen burgundy-and-gold welcome pairs the original school crest with an 
 
 - **Editorial visual identity:** ivory and burgundy, oversized local serif typography, a split photographic hero, shaped photo frames, quieter cards and photo-led introductions to the school, learning, life and admissions chapters.
 - **School-life stories:** a three-part Learning / Community / Faith explorer using the school’s existing photographs. Keyboard-operated tabs update the photo, story and relevant chapter link. An unavailable photo has a retry state; there is no autoplay.
-- **Guided visit enquiry:** choose a published entry class or general enquiry, optional proposed day/time, discussion topics and a short question. Review the complete draft, open it in an email app, copy it or download a text plan. Nothing is sent or booked by the website.
+- **Guided visit enquiry:** choose a published entry class or general enquiry, optional proposed day/time, discussion topics and a short question. Review the complete draft, open it in an email app, copy it or download a text plan. Version 3 sent nothing; since version 3.2 the review step additionally offers an explicit, consent-gated **send to the school**. Nothing is booked by the website either way.
 - **Optional follow-up:** explicitly add a personal reminder from the reviewed enquiry to the existing School Desk. Its consent, backup, 100-reminder limit and Lagos-time calendar behaviour remain unchanged. Draft answers themselves never enter local storage.
 - **Photograph viewer:** small authentic thumbnails, keyboard selection, an enlarged scrollable view and a fit-to-view control. The 14-photo collection and category filters stay in sync; moving photos resets zoom.
 - **Chapter contents:** 11 direct section shortcuts across four content-rich chapters, preserving legacy hashes and routing.
@@ -42,10 +67,12 @@ Node **22** is specified in `.nvmrc`. Production serves the checked-in static fi
 npm ci
 npm run build       # authored CSS/JS → site.min.css + site.min.js
 npm run serve       # gzip-enabled local preview, http://localhost:8230
-npm test            # 119 real-browser checks (60 core + 35 premium + 24 loading)
+npm test            # 142 real-browser checks (64 core + 35 premium + 24 loading + 19 connection)
 ```
 
 The preview server binds to `0.0.0.0` for hosted previews. It is not a production server. An arbitrary static server can serve the built site, but compression affects performance measurements. Offline tests require localhost or HTTPS; they cannot run from `file://`.
+
+The version-3.2 modules (`connect.*`, `scroll3d.*`, `staff.*`) are deliberately **outside** the minified bundles. They are optional enhancements, they must be able to fail without touching startup, and keeping them separate leaves the existing reproducible bundles byte-for-byte unchanged.
 
 **Edit the source files, not the minified bundles, then rebuild.** Commit both sources and generated bundles. The build is deterministic; regression tests verify this. Edit the loading-screen source files rather than their generated inline regions. CI checks both `index.html` and the runtime bundles for build drift.
 
@@ -61,18 +88,30 @@ The preview server binds to `0.0.0.0` for hosted previews. It is not a productio
 | `fonts.css`, `styles.css`, `features.css`, `advanced.css` | Supporting styles; bundled in this order before `site.css` |
 | `site.min.css`, `site.min.js` | Actual production entry bundles |
 | `motion.css`, `motion.js` | Optional, on-demand native-scroll effects; not part of startup bundles |
+| `connect.css`, `connect.js` | Version-3.2 school connection layer: consent-gated enquiry sending and the assistant. Loaded directly, **not** part of the minified bundles |
+| `scroll3d.css`, `scroll3d.js` | Version-3.2 scroll-linked 3D depth. Loaded directly, not part of the minified bundles |
+| `staff.html`, `staff.css`, `staff.js` | Private Identity-protected enquiry desk; loads none of the public bundles |
+| `netlify/functions/` | `enquiries` (public submit, staff read/triage), `assistant` (AI Gateway), `staff-session` (sign-in), `capabilities` (feature probe) |
+| `netlify/lib/` | Server-side validation, staff authorisation and the assistant's knowledge base |
+| `db/schema.ts`, `db/index.ts`, `drizzle.config.ts` | Enquiry table, database client and migration configuration |
+| `netlify/database/migrations/` | Generated SQL migrations, applied automatically by Netlify at deploy time |
+| `netlify.toml`, `robots.txt` | Headers, caching, redirects, functions configuration and crawler rules |
 | `sw.js`, `manifest.webmanifest` | Explicit opt-in public-site offline support and install metadata |
 | `assets/`, `licenses/` | Original school media, responsive image variants, local fonts and licence notices |
 | `scripts/build.cjs`, `scripts/server.cjs` | Reproducible build and gzip/project-prefix preview server |
-| `tests/site.cjs`, `tests/premium.cjs`, `tests/loading.cjs` | 60 core + 35 premium + 24 loading-screen behaviour, failure-recovery, privacy and accessibility checks |
+| `tests/site.cjs`, `tests/premium.cjs`, `tests/loading.cjs`, `tests/connect.cjs` | 64 core + 35 premium + 24 loading-screen + 19 connection behaviour, failure-recovery, privacy and accessibility checks |
 | `lighthouserc.cjs`, `.github/workflows/` | Automated tests and deployed-site Lighthouse monitoring |
 
 ## Verification
 
-The version-3.1 regression suite contains **119 checks** in Chromium: 60 core, 35 premium and 24 loading-screen checks. It covers:
+The version-3.2 regression suite contains **142 checks** in Chromium: 64 core, 35 premium, 24 loading-screen and 19 connection checks. It covers:
 
 - Open loading screen at **320, 390, 768 and 1440 px**, actual readiness versus stalled requests, skip/Escape focus, stylesheet/script/font/photo failure, independent critical styling, no-JavaScript fallback, motion preferences, deep links, history/printing and offline reload.
 - All three enquiry steps at **320, 375, 768 and 1440 px** with Axe checks, safe review/escaping, editable back navigation, reset confirmation, copy fallback, exact downloaded content, explicit reminder consent and a genuinely offline enquiry flow.
+- The server tier against a stubbed local API, so no test touches Netlify or a database: the real server validation rules loaded from their own TypeScript module, one-way rate-limit hashing, a complete consent-gated send with its reference number, refusal before any request when consent or a reply route is missing, a rejected or unreachable server still leaving the email and telephone routes, the assistant answering without rendering markup, and a deploy with no server tier behaving exactly like the static site.
+- The promise that an ordinary visit contacts no service at all, asserted by recording every request made while reading the site.
+- Scroll-linked depth at **320, 360, 414, 768, 1024, 1280, 1440 and 1920 px** with no document overflow, withdrawn immediately for reduced motion or the School Desk motion setting, and leaving no text permanently transparent.
+- The staff desk requiring a sign-in, exposing no family data beforehand, and shipping no third-party script.
 - Story keyboard controls and image retry, all 11 contents links, 14 lightweight thumbnails, filter synchronisation, photo zoom/panning, focus restoration and keyboard selection.
 - All eight chapters at **320, 360, 375, 390, 414, 600, 768, 820, 1024, 1280, 1440 and 1920 px**, with no document overflow.
 - Axe WCAG 2 A/AA and 2.1 A/AA scans of all eight chapters at mobile/desktop sizes, all four desk tabs, settings/offline dialogs and ten content dialogs.
@@ -86,15 +125,35 @@ Automated checks are not an accessibility certification or a guarantee of identi
 
 Lighthouse results are individual lab measurements, not a promised real-world speed increase or accessibility certification. The Lighthouse workflow waits for the matching deployed HTML, CSS, JS and worker, runs two production audits and uploads the reports. Thresholds are 85 performance and 95 for the other categories to catch regressions without promising perfect scores.
 
+## Deploying the server tier on Netlify
+
+The static site still works with no server at all — that is how it is published on GitHub Pages, where the enquiry send button and the assistant simply never appear. To run the connected version on Netlify:
+
+1. **Database.** Nothing to configure. The enquiry table is created by the migration in `netlify/database/migrations/`, which Netlify applies automatically before a deploy is published.
+2. **AI assistant.** Netlify AI Gateway injects the provider credentials at runtime; no key is stored in this repository. The assistant is advertised to the page only when a credential is actually present, so a project without AI credit simply shows no assistant.
+3. **Staff accounts.** Identity is enabled by this repository's setup. In the Netlify dashboard, open **Identity**, invite the staff member, and after they accept, open their user record and add `staff` (or `admin`) to their **Roles**. **This step is required** — without a role the account can sign in but every enquiry request is refused. Consider setting registration to *Invite only* so the public cannot create accounts at all.
+4. **Optional.** Set `ENQUIRY_HASH_SALT` to any private string to salt the rate-limiting hash with a value that is not the site ID.
+
+Staff then sign in at `/staff`. Sign-in runs server-side, so the public pages continue to ship no authentication library and no third-party JavaScript.
+
+### Abuse and cost controls
+
+- Enquiries: five submissions per hour per source, every field length-capped and re-validated on the server, and a `mailto:`/phone fallback whenever the API refuses.
+- Assistant: 25 questions per hour per source, a 600-character question cap, a 12-turn history cap and a 400-token answer cap.
+- Sources are identified by a salted, truncated, one-way hash. The raw address is never stored, and the hash is never shown to staff.
+
 ## Data and offline boundaries
 
 - Existing `mamss.desk.v1` data and version-1 JSON backups remain compatible. No destructive migration is performed.
-- Nothing is saved persistently until the visitor opts in. Data stays in that browser; there is no cloud sync, account or school submission. Do not put sensitive records into local reminders.
+- School Desk data is unchanged: nothing is saved persistently until the visitor opts in, it stays in that browser, and there is no cloud sync or account for it. Do not put sensitive records into local reminders.
+- Since version 3.2 there *is* a school submission path, but only through the enquiry's explicit send button. It stores exactly the fields the family typed, in the school's own Netlify database. It does not touch, upload or back up School Desk data.
 - Reading settings respect reduced motion. Optional 3D defaults off; an existing explicit preference is retained.
 - Offline caching is a separate opt-in. It caches this public project, not external portals. Cache names include the service worker's scope path. Cleanup only removes owned caches; other projects on the same origin are left alone.
 - Core public content and desk can work offline. Unvisited media and optional effects might still need a connection. Existing opt-in workers are offered updates; new visitors are not automatically registered.
-- Guided visit-enquiry answers are held only in this page and cleared by reset/reload. Closing the dialog retains them for this page session. Resetting an enquiry does not delete reminders already explicitly added to the desk. No visitor name, email address or student record is required by the guided planner.
-- Contact forms prepare an email draft for review and opening in the user's mail application. They do not send messages. Checklists are not admission applications; reminders are not school-confirmed appointments.
+- Guided visit-enquiry answers are held only in this page and cleared by reset/reload. Closing the dialog retains them for this page session. Resetting an enquiry does not delete reminders already explicitly added to the desk, and it does not withdraw an enquiry already sent to the school — the office must be called for that.
+- A name and a contact detail are required **only** to send an enquiry to the school. Preparing, copying or downloading a plan still requires no personal detail at all.
+- The assistant sends the visitor's typed question to the school's AI provider through Netlify AI Gateway to produce an answer. It is told to refuse personal details, and the conversation is not written to the database or to the visitor's device.
+- Contact forms still prepare an email draft for review in the user's own mail application; they do not send messages. Checklists are not admission applications; reminders are not school-confirmed appointments; a sent enquiry is not a confirmed visit, a place or an application.
 
 See [ADVANCED-FEATURES.md](ADVANCED-FEATURES.md) for tool behaviour and [FEATURE-COVERAGE.md](FEATURE-COVERAGE.md) for retained content/service destinations.
 

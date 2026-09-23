@@ -1,0 +1,110 @@
+# MAMSS — Netlify platform configuration.
+# The site is a prebuilt static bundle; the build step only regenerates the
+# deterministic CSS/JS bundles from their authored sources.
+
+[build]
+  command = "npm run build"
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# ---------------------------------------------------------------------------
+# Security headers. The site ships no third-party scripts, so everything is
+# locked to this origin. Inline script/style are required by the built-in
+# loading screen, which is generated into index.html at build time.
+# ---------------------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Content-Security-Policy = """
+      default-src 'self'; \
+      script-src 'self' 'unsafe-inline'; \
+      style-src 'self' 'unsafe-inline'; \
+      img-src 'self' data: blob:; \
+      font-src 'self'; \
+      connect-src 'self'; \
+      form-action 'self'; \
+      frame-ancestors 'none'; \
+      base-uri 'self'; \
+      object-src 'none'; \
+      manifest-src 'self'"""
+
+# HTML must always be revalidated so school information is never served stale.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Versioned runtime bundles are requested with a ?v= query and can be held for a year.
+[[headers]]
+  for = "/site.min.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/site.min.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+# The service worker must never be cached, or visitors are stuck on an old shell.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# The staff desk is private: never cached, never indexed.
+[[headers]]
+  for = "/staff.html"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
+# ---------------------------------------------------------------------------
+# Redirects
+# ---------------------------------------------------------------------------
+
+# The site was previously served under a GitHub Pages project prefix. Keep every
+# old link, including deep links into a chapter, working on this domain.
+[[redirects]]
+  from = "/mamss-website/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/staff"
+  to = "/staff.html"
+  status = 200
+
+[[redirects]]
+  from = "/admissions"
+  to = "/#admissions"
+  status = 302
+
+[[redirects]]
+  from = "/contact"
+  to = "/#contact"
+  status = 302

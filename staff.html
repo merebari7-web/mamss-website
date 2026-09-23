@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Enquiry desk | MAMSS staff</title>
+<meta name="description" content="Private staff area for Mater Misericordiae Secondary School.">
+<meta name="theme-color" content="#501c2f">
+<link rel="icon" href="assets/crest.webp">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="staff.css">
+</head>
+<body>
+<a class="staff-skip" href="#main">Skip to content</a>
+<header class="staff-header">
+  <div class="staff-brand">
+    <img src="assets/crest.webp" alt="" width="40" height="40">
+    <div>
+      <p>MATER MISERICORDIAE SECONDARY SCHOOL</p>
+      <h1>Enquiry desk</h1>
+    </div>
+  </div>
+  <div class="staff-session">
+    <span id="staff-who" hidden></span>
+    <button type="button" id="staff-logout" hidden>Sign out</button>
+    <a class="staff-back" href="/">Back to the website</a>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <p class="staff-state" id="staff-state" role="status">Checking your sign-in…</p>
+
+  <section class="staff-card" id="staff-login" hidden aria-labelledby="staff-login-title">
+    <h2 id="staff-login-title">School staff sign-in</h2>
+    <p>This area shows visit enquiries families have sent through the website. It is for school staff only.</p>
+    <form id="staff-form" novalidate>
+      <label for="staff-email">Email address</label>
+      <input type="email" id="staff-email" name="email" autocomplete="username" required>
+      <label for="staff-password">Password</label>
+      <input type="password" id="staff-password" name="password" autocomplete="current-password" required>
+      <p class="staff-error" id="staff-error" role="alert"></p>
+      <button type="submit" id="staff-submit">Sign in</button>
+    </form>
+    <p class="staff-note">Accounts are created by invitation in Netlify Identity. A new account also needs the
+      <strong>staff</strong> or <strong>admin</strong> role before any enquiry can be read.</p>
+  </section>
+
+  <section class="staff-card" id="staff-desk" hidden aria-labelledby="staff-desk-title">
+    <div class="staff-desk-head">
+      <div>
+        <h2 id="staff-desk-title">Visit enquiries</h2>
+        <p id="staff-count">Loading enquiries…</p>
+      </div>
+      <div class="staff-filters" role="group" aria-label="Filter enquiries by status">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="new" aria-pressed="false">New</button>
+        <button type="button" data-filter="read" aria-pressed="false">Read</button>
+        <button type="button" data-filter="answered" aria-pressed="false">Answered</button>
+        <button type="button" data-filter="closed" aria-pressed="false">Closed</button>
+      </div>
+    </div>
+    <ul class="staff-list" id="staff-list"></ul>
+    <p class="staff-note">Families sent these details themselves. Confirm dates, places and fees with them directly;
+      the website never promises a booking. Treat contact details as confidential school information.</p>
+  </section>
+</main>
+
+<script src="staff.js" defer></script>
+</body>
+</html>

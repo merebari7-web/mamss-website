@@ -2,11 +2,15 @@
 
 Reviewed against the rendered public site at **https://schoolsnigeria.com.ng/mamss/**, which is embedded by **https://www.mamss.com.ng/**. Review date: **20 September 2026**.
 
-This inventory records the original content and service destinations retained by the redesign. Versions 2 and 3 organise them into eight focused chapters without recreating or migrating private systems. Current reproducible verification is documented in README.md, tests/site.cjs and tests/premium.cjs; the historical checks below describe the earlier restoration.
+This inventory records the original content and service destinations retained by the redesign. Versions 2 and 3 organise them into eight focused chapters without recreating or migrating private systems. Current reproducible verification is documented in README.md, tests/site.cjs, tests/premium.cjs and tests/connect.cjs; the historical checks below describe the earlier restoration.
 
 ## Version 3 additions (no private-system changes)
 
 The editorial homepage, school-life story explorer, chapter contents and three-step visit-enquiry planner supplement the retained features below. Visit plans are not bookings or applications; email is reviewed and sent only in the visitor’s email app. Optional personal reminders use the existing opt-in School Desk. All 17 resources, 14 gallery photos, 12 hero photos, school information and original external destinations remain.
+
+## Version 3.2 additions (optional school services, still no private-system changes)
+
+Version 3.2 adds a school-connected tier on top of everything below, and nothing in it replaces or reads from the school's existing private systems. A family who has completed the visit-enquiry planner may now choose to send that enquiry to the school, in which case it is stored in the school's own Netlify database and read by signed-in staff at a separate, unindexed desk; an assistant can answer questions from the school information already published on this site; and scroll-linked 3D depth was added to the reading experience. Every one of these is optional and capability-checked: where the site is published without the server tier, none of them appears and the original email-draft and telephone routes are exactly as described below. The claims in "Important boundaries" have been amended accordingly.
 
 ## Navigation and school information
 
@@ -86,6 +90,8 @@ A new **searchable resource hub** groups 17 resource entries for students, paren
 - This is a working public-facing redesign, not a migration of private school databases or a replacement login system.
 - External services keep their own accounts, authentication, storage, availability, and policies. No credentials were used and no private accounts were accessed during the review.
 - The local contact form drafts an email; it does not send email or store submissions. Direct complaint submissions remain on the original school system.
+- From version 3.2, the visit-enquiry planner has one additional, clearly-marked and consent-gated step that does send the enquiry to the school and store it there. It is still not an application, a booking or a confirmed place, and it is never the only route: the email draft and the telephone number remain on the same screen.
+- From version 3.2, a question put to the assistant is sent to the school's AI provider so an answer can be written. The assistant answers only from information already published on this website, cannot see any student record, and cannot apply, book or confirm anything.
 - Unpublished history, anthem lyrics/audio, newsletters, term-calendar data, and assignment files must be supplied by the school before those content areas can be completed.
 - Statistics, testimonials, dates, contacts, leadership, and image permissions require school approval before launch.
 - Facebook/WhatsApp/maps/mail apps and official portals work in the live preview or a downloaded browser copy; restricted file viewers may block external navigation.
@@ -100,4 +106,4 @@ A new **searchable resource hub** groups 17 resource entries for students, paren
 
 ## Subsequent advanced improvements
 
-The restored features above are retained. See `ADVANCED-FEATURES.md` for the new School Desk, site-wide search, personal planner, saved resources, optional local storage, reading controls, and public offline mode. These additions do not replace the school’s private systems.
+The restored features above are retained. See `ADVANCED-FEATURES.md` for the new School Desk, site-wide search, personal planner, saved resources, optional local storage, reading controls, public offline mode, and the version 3.2 enquiry desk, assistant, staff view and scroll-linked depth. These additions do not replace the school’s private systems.

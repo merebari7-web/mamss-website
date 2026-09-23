@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /staff
+Disallow: /staff.html
+Disallow: /api/
+
+Sitemap: https://merebari7-web.github.io/mamss-website/sitemap.xml
