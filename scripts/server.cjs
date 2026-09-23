@@ -30,7 +30,13 @@ function server(prefix = "/") {
       res.writeHead(404);
       return res.end("Not found");
     }
-    const file = path.resolve(root, rel);
+    let file = path.resolve(root, rel);
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+      /* Chapter directories serve their own index document. */
+      const indexFile = path.join(file, "index.html");
+      if (fs.existsSync(indexFile) && fs.statSync(indexFile).isFile())
+        file = indexFile;
+    }
     if (
       !file.startsWith(root + path.sep) ||
       !fs.existsSync(file) ||

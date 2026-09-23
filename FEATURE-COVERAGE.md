@@ -2,7 +2,7 @@
 
 Reviewed against the rendered public site at **https://schoolsnigeria.com.ng/mamss/**, which is embedded by **https://www.mamss.com.ng/**. Review date: **20 September 2026**.
 
-This inventory records the original content and service destinations retained by the redesign. Versions 2 and 3 organise them into eight focused chapters without recreating or migrating private systems. Current reproducible verification is documented in README.md, tests/site.cjs and tests/premium.cjs; the historical checks below describe the earlier restoration.
+This inventory records the original content and service destinations retained by the redesign. Versions 2 and 3 organise them into eight focused chapters without recreating or migrating private systems; version 4 additionally publishes each chapter at its own real address (/our-school/, /learning/, /school-life/, /admissions/, /resources/, /school-desk/, /contact/) with page-level metadata for search engines. Current reproducible verification is documented in README.md, tests/site.cjs and tests/premium.cjs; the historical checks below describe the earlier restoration.
 
 ## Version 3 additions (no private-system changes)
 

@@ -22,5 +22,5 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: Verify committed production bundles
-        run: git diff --exit-code -- index.html site.min.css site.min.js
+        run: git diff --exit-code -- index.html our-school/index.html learning/index.html school-life/index.html admissions/index.html resources/index.html school-desk/index.html contact/index.html sitemap.xml site.min.css site.min.js
       - run: npm audit --audit-level=high

@@ -13,14 +13,18 @@
  const heroVisual=document.querySelector('.hero-visual');
  const heroCopy=document.querySelector('.hero-copy');
  const controls=document.querySelector('.hero-carousel-controls');
+ const hasHero=!!(hero&&heroVisual&&controls);
  const clamp=(v,min=0,max=1)=>Math.max(min,Math.min(max,v));
  const ease=v=>1-Math.pow(1-v,3);
  const smallScreen=()=>innerWidth<=600;
  const isPaused=()=>document.hidden||!!document.querySelector('dialog[open]');
 
- const frame=document.createElement('span');frame.className='depth-frame';frame.setAttribute('aria-hidden','true');heroVisual.prepend(frame);
- const orbit=document.createElement('span');orbit.className='depth-orbit';orbit.setAttribute('aria-hidden','true');orbit.innerHTML='<i></i><i></i><i></i><span></span>';heroVisual.prepend(orbit);
- const toggle=document.createElement('button');toggle.id='scroll-fx-toggle';toggle.type='button';controls.setAttribute('aria-label','Photo slideshow and 3D scroll effects');controls.append(toggle);
+ let toggle=document.createElement('button');
+ if(hasHero){
+  const frame=document.createElement('span');frame.className='depth-frame';frame.setAttribute('aria-hidden','true');heroVisual.prepend(frame);
+  const orbit=document.createElement('span');orbit.className='depth-orbit';orbit.setAttribute('aria-hidden','true');orbit.innerHTML='<i></i><i></i><i></i><span></span>';heroVisual.prepend(orbit);
+  toggle.id='scroll-fx-toggle';toggle.type='button';controls.setAttribute('aria-label','Photo slideshow and 3D scroll effects');controls.append(toggle);
+ }
 
  function layoutTop(element){let top=0,node=element;while(node){top+=node.offsetTop||0;node=node.offsetParent;}return top;}
  function setNumber(el,name,value,unit='',precision=3){
@@ -47,7 +51,7 @@
   needsDiscovery=false;needsMeasure=true;
  }
  function measure(){
-  viewport=innerHeight;heroTop=layoutTop(hero);heroHeight=hero.offsetHeight;
+  viewport=innerHeight;if(hero){heroTop=layoutTop(hero);heroHeight=hero.offsetHeight;}
   for(const record of records.values()){
    record.top=layoutTop(record.el);record.height=record.el.offsetHeight;
    const top=record.top-scrollY;record.inView=top<viewport+220&&top+record.height>-220;
@@ -86,7 +90,7 @@
   const currentY=scrollY,mobile=smallScreen();let unsettled=false;
   if(!intersection){for(const record of records.values()){const top=record.top-currentY;record.inView=top<viewport+220&&top+record.height>-220;if(record.inView)active.add(record);else active.delete(record);}}
   const heroTarget=clamp((currentY-heroTop+90)/Math.max(heroHeight,1));
-  if(!holdingHero&&heroTop+heroHeight>currentY-100&&heroTop<currentY+viewport){
+  if(hasHero&&!holdingHero&&heroTop+heroHeight>currentY-100&&heroTop<currentY+viewport){
    heroProgress+=(heroTarget-heroProgress)*.17;
    if(Math.abs(heroTarget-heroProgress)>.001)unsettled=true;else heroProgress=heroTarget;
    setNumber(heroVisual,'--hero-y',heroProgress*(mobile?16:46),'px');

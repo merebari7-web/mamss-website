@@ -1,12 +1,24 @@
 /* Opt-in public caching only. School portals and other Pages projects are separate. */
 const ROOT = new URL("./", self.location.href).href;
 const ROOT_PATH = new URL(ROOT).pathname;
-const CACHE = "mamss-public-v9:" + ROOT_PATH;
+const CACHE = "mamss-public-v10:" + ROOT_PATH;
+/* Each chapter is a real document in its own directory. */
+const PAGES = [
+  "our-school",
+  "learning",
+  "school-life",
+  "admissions",
+  "resources",
+  "school-desk",
+  "contact",
+];
+const pagePaths = new Set(PAGES.map((s) => ROOT_PATH + s + "/"));
+const pageFiles = new Set(PAGES.map((s) => ROOT_PATH + s + "/index.html"));
 const SHELL = [
   "./",
   "index.html",
-  "site.min.css?v=3.1",
-  "site.min.js?v=3.1",
+  "site.min.css?v=4.0",
+  "site.min.js?v=4.0",
   "manifest.webmanifest",
   "assets/crest.webp",
   "assets/app-icon-192.png",
@@ -19,8 +31,16 @@ const SHELL = [
   "assets/visit035.webp",
   "assets/visit035--480.webp",
   "assets/visit035--900.webp",
+  ...PAGES.map((s) => "./" + s + "/index.html"),
 ];
 const shellPaths = new Set(SHELL.map((path) => new URL(path, ROOT).pathname));
+/* Every chapter document is cached under its index.html address. */
+const documentKey = (url) => {
+  let path = url.pathname;
+  if (path.endsWith("/")) path += "index.html";
+  else if (!path.endsWith("/index.html")) path += "/index.html";
+  return new URL(path, ROOT).href;
+};
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
@@ -71,7 +91,10 @@ self.addEventListener("fetch", (event) => {
   )
     return;
   const isHome =
-    url.pathname === ROOT_PATH || url.pathname === ROOT_PATH + "index.html";
+    url.pathname === ROOT_PATH ||
+    url.pathname === ROOT_PATH + "index.html" ||
+    pagePaths.has(url.pathname) ||
+    pageFiles.has(url.pathname);
   const isAsset =
     url.pathname.startsWith(ROOT_PATH + "assets/") &&
     /\.(webp|png|woff2)$/.test(url.pathname);
@@ -83,7 +106,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE),
-        key = isHome ? new URL("index.html", ROOT).href : url.href;
+        key = isHome ? documentKey(url) : url.href;
       // Runtime files use network-first to avoid a new HTML shell receiving old scripts.
       // Public media/fonts can safely be cache-first between versioned releases.
       if (isAsset) {

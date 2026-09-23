@@ -43,13 +43,14 @@ function persistDesk(){
  try{localStorage.setItem(DESK_KEY,JSON.stringify(deskState));return true;}catch{deskState.consent=false;toast('Device saving is unavailable here. Your changes still work for this visit.');return false;}
 }
 function updateDeskChrome(){
+ if(!$('#desk-panel'))return;
  $('#saved-count').textContent=deskState.favorites.length;
  $('#storage-badge').textContent=deskState.consent?'Saved on this device':'This visit only';
  $('#storage-badge').classList.toggle('enabled',deskState.consent);
  $('#remember-banner').hidden=deskState.consent;
 }
 function enableDeviceSaving(){deskState.consent=true;const ok=persistDesk();updateDeskChrome();if(ok)toast('Enabled. Your school desk is saved only in this browser.');return ok;}
-$('#enable-device-saving').addEventListener('click',enableDeviceSaving);
+const enableSavingButton=$('#enable-device-saving');if(enableSavingButton)enableSavingButton.addEventListener('click',enableDeviceSaving);
 function applyReadingSettings(){
  const root=document.documentElement;
  root.dataset.depth=deskState.settings.depth===false?'off':'on';
@@ -93,6 +94,7 @@ function renderPlanner(){
  return`<div class="desk-panel-heading"><div><p class="eyebrow">A LITTLE SPACE TO PLAN AHEAD</p><h3>Make room for<br><em>what matters.</em></h3></div><button class="button" data-advanced="add-reminder">Add a reminder <span>+</span></button></div><p class="desk-intro">Personal reminders live in your desk. School dates are labelled separately. No appointment is booked and no notification is sent.</p><div class="planner-layout"><div class="calendar"><div class="calendar-top"><h4>${dateLabel(calendarMonth+'-01',{month:'long',year:'numeric'})}</h4><div><button data-calendar-month="-1" aria-label="Previous month">‹</button><button id="calendar-today">Today</button><button data-calendar-month="1" aria-label="Next month">›</button></div></div><table class="calendar-grid"><caption class="sr-only">Choose a day to see personal reminders and published school dates</caption><thead><tr>${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(t=>`<th scope="col">${t}</th>`).join('')}</tr></thead><tbody>${calendarCells()}</tbody></table><div class="calendar-legend"><span><i class="personal-dot"></i> Personal reminder</span><span><i class="official-dot"></i> Published school date</span></div></div><div class="day-agenda"><p class="eyebrow">${dateLabel(calendarDate,{weekday:'long'})}</p><h4>${dateLabel(calendarDate,{day:'numeric',month:'long'})}</h4>${events.length?events.map(e=>`<button class="agenda-entry ${e.official?'official':''}" ${e.official?'data-action="calendar"':`data-reminder="${e.id}"`}><span>${e.official?'PUBLISHED · PAST DATE':'PERSONAL REMINDER'}</span><strong>${escapeHtml(e.title)}</strong><small>${e.time?e.time+' · Africa/Lagos':'All day'} ↗</small></button>`).join(''):'<p class="agenda-empty">Nothing planned for this day. Leave a little room for possibility.</p>'}<button class="desk-link" data-advanced="add-reminder">Add to this day +</button></div></div><div class="planner-footer"><button class="desk-link" data-advanced="export-calendar">Export my reminders (.ics) ↓</button><button class="desk-link" data-action="calendar">School dates & PTA notice ↗</button></div><p class="desk-footnote">The original PTA notice says “6 October” without a year. It has not been added to the calendar as a confirmed event.</p>`;
 }
 function renderDesk(){
+ if(!$('#desk-panel'))return;
  updateDeskChrome();
  $('#desk-today').textContent=new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Africa/Lagos'}).format(new Date());
  $('#desk-panel').innerHTML=({overview:renderOverview,admissions:renderChecklist,planner:renderPlanner,saved:renderSaved}[deskTab])();
@@ -104,18 +106,18 @@ $$('[data-desk-tab]').forEach((button,index)=>{
  button.addEventListener('click',()=>chooseDeskTab(button.dataset.deskTab));
  button.addEventListener('keydown',e=>{const tabs=['overview','admissions','planner','saved'];let next;if(['ArrowDown','ArrowRight'].includes(e.key))next=(index+1)%4;else if(['ArrowUp','ArrowLeft'].includes(e.key))next=(index+3)%4;else if(e.key==='Home')next=0;else if(e.key==='End')next=3;if(next!==undefined){e.preventDefault();chooseDeskTab(tabs[next],true);}});
 });
-$('#desk-panel').addEventListener('change',e=>{
+const deskPanel=$('#desk-panel');if(deskPanel)deskPanel.addEventListener('change',e=>{
  if(e.target.id==='desk-role'){deskState.role=e.target.value;commitDesk();renderDesk();$('#desk-role').focus();}
  if(e.target.id==='desk-entry'){deskState.entry=e.target.value;commitDesk();}
  if(e.target.matches('[data-task]')){const task=e.target.dataset.task;deskState.tasks=e.target.checked?[...new Set([...deskState.tasks,task])]:deskState.tasks.filter(t=>t!==task);commitDesk();renderDesk();$(`[data-task="${task}"]`).focus();}
 });
-$('#desk-panel').addEventListener('click',e=>{
+if(deskPanel)deskPanel.addEventListener('click',e=>{
  const tab=e.target.closest('[data-desk-go]');if(tab)chooseDeskTab(tab.dataset.deskGo);
  const day=e.target.closest('[data-calendar-day]');if(day){calendarDate=day.dataset.calendarDay;calendarMonth=calendarDate.slice(0,7);renderDesk();$(`[data-calendar-day="${calendarDate}"]`).focus();}
  const month=e.target.closest('[data-calendar-month]');if(month){const d=new Date(calendarMonth+'-01T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+Number(month.dataset.calendarMonth));calendarMonth=d.toISOString().slice(0,7);calendarDate=calendarMonth+'-01';renderDesk();$(`[data-calendar-month="${month.dataset.calendarMonth}"]`).focus();}
  if(e.target.id==='calendar-today'){calendarDate=lagosToday();calendarMonth=calendarDate.slice(0,7);renderDesk();$('#calendar-today').focus();}
 });
-$('#desk-panel').addEventListener('keydown',e=>{
+if(deskPanel)deskPanel.addEventListener('keydown',e=>{
  const day=e.target.closest('[data-calendar-day]');if(!day)return;const delta={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key];if(delta!==undefined){e.preventDefault();calendarDate=shiftDate(day.dataset.calendarDay,delta);calendarMonth=calendarDate.slice(0,7);renderDesk();$(`[data-calendar-day="${calendarDate}"]`).focus();}
 });
 function syncFavoriteButtons(){
@@ -199,7 +201,7 @@ $$('[data-search-scope]').forEach(b=>b.addEventListener('click',()=>{searchScope
 searchDialog.addEventListener('close',()=>{if(!contentDialog.open&&!lightbox.open)document.body.classList.remove('modal-open');if(searchOrigin?.isConnected)searchOrigin.focus();startHeroTimer();});
 searchDialog.addEventListener('click',e=>{
  if(e.target===searchDialog){const r=searchDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)searchDialog.close();}
- const result=e.target.closest('[data-search-result]');if(result){const entry=siteSearchIndex[Number(result.dataset.searchResult)];if(entry.anchor)searchOrigin=null;searchDialog.close();if(entry.anchor){if(window.MAMSS){MAMSS.go(entry.anchor);return;}const target=document.getElementById(entry.anchor);target.scrollIntoView({behavior:deskState.settings.motion?'instant':'smooth'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}else if(entry.action)featureActions[entry.action]();else if(entry.newsButton)document.getElementById(entry.newsButton).click();else if(entry.advanced)advancedActions[entry.advanced]();}
+ const result=e.target.closest('[data-search-result]');if(result){const entry=siteSearchIndex[Number(result.dataset.searchResult)];if(entry.anchor)searchOrigin=null;searchDialog.close();if(entry.anchor){if(window.MAMSS){MAMSS.open(entry.anchor);return;}const target=document.getElementById(entry.anchor);target.scrollIntoView({behavior:deskState.settings.motion?'instant':'smooth'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}else if(entry.action)featureActions[entry.action]();else if(entry.newsButton)document.getElementById(entry.newsButton).click();else if(entry.advanced)advancedActions[entry.advanced]();}
 });
 searchDialog.addEventListener('keydown',e=>{
  if(e.key==='Escape'){e.preventDefault();e.stopPropagation();searchDialog.close();return;}
@@ -244,7 +246,7 @@ window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;toast('MA
 const offlineSupported=()=>('serviceWorker' in navigator)&&window.isSecureContext&&['http:','https:'].includes(location.protocol);
 async function removeOfflineCopy(){
  try {
-  const scope=new URL('./',location.href);
+  const scope=new URL(SITE_ROOT);
   if('serviceWorker' in navigator){for(const reg of await navigator.serviceWorker.getRegistrations()){const worker=reg.active||reg.waiting||reg.installing;if(worker?.scriptURL===new URL('sw.js',scope).href){worker.postMessage({type:'DISABLE_OFFLINE'});await reg.unregister();}}}
   if('caches' in window){for(const key of await caches.keys()){
    if(!key.startsWith('mamss-public-'))continue;
@@ -260,7 +262,7 @@ function showOfflineTools(){
  showDialog(`<p class="eyebrow">A LITTLE CLOSER, EVEN OFFLINE</p><h2>Keep your school<br><em>within reach.</em></h2><p>Save the public website on this device for future offline visits. This stores website files, not student records or portal credentials.</p><div class="offline-feature-list"><div><b>Available offline after saving</b><p>Public school information, local search, checklist, saved link labels, and personal planner. Previously loaded photos may also be available.</p></div><div><b>Still needs internet</b><p>Results, CBT, e-library, logins, official complaint submissions, WhatsApp, email delivery, and external websites.</p></div></div>${supported?'<button class="button" id="enable-offline">Enable offline website <span>↓</span></button>':'<p class="notice">Offline installation requires the hosted website over HTTPS (or localhost for development). It is not available in this restricted file preview. Use the hosted website to enable offline access.</p>'}<p id="offline-status" class="form-status" role="status"></p><h3>Add the website to your device</h3><p>${deferredInstallPrompt?'Your browser supports installation. Use the button below to add MAMSS to your home screen.':'On a compatible browser, use its “Install app” or “Add to Home Screen” option. Availability depends on your browser and how the site is opened.'}</p>${deferredInstallPrompt?'<button class="button light" id="install-website">Install MAMSS ↗</button>':''}<p class="small-note">Offline storage is separate from saving your desk. To remove both, use Device & privacy settings.</p><button class="text-link" data-advanced="device-settings">Manage device data ↗</button>`);
  $('#enable-offline')?.addEventListener('click',async()=>{
   const button=$('#enable-offline'),status=$('#offline-status');button.disabled=true;status.textContent='Saving the public website for offline use…';
-  try{await navigator.serviceWorker.register('sw.js',{scope:'./'});await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(Error('Saving took too long. Please try again with a working connection.')),20000))]);status.textContent='Offline website ready. Reopen this same website address to use the saved copy. External school services still need internet.';button.textContent='Offline website enabled ✓';}
+  try{await navigator.serviceWorker.register(new URL('sw.js',SITE_ROOT).href,{scope:SITE_ROOT});await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(Error('Saving took too long. Please try again with a working connection.')),20000))]);status.textContent='Offline website ready. Reopen this same website address to use the saved copy. External school services still need internet.';button.textContent='Offline website enabled ✓';}
   catch(error){status.textContent='Could not save the offline website. '+error.message;button.disabled=false;}
  });
  $('#install-website')?.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;const status=$('#offline-status');await deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;status.textContent=choice.outcome==='accepted'?'Installation requested. Your browser will complete the setup.':'Installation cancelled. You can continue using the website normally.';});
@@ -289,15 +291,19 @@ const RESPONSIVE_IMAGES={"mamss_teacher": {"widths": [480, 900], "original": 102
 
 function enhanceImage(img){
  if(!img||img.tagName!=='IMG')return;
- const src=img.getAttribute('src')||'';
+ let src=img.getAttribute('src')||'';
  // Standalone embedded previews already contain their original images.
  if(src.startsWith('data:'))return;
+ // Chapter navigation updates the address bar, so lazy photographs must not
+ // re-resolve against a different directory. Pin them to absolute URLs once.
+ if(src&&!/^(https?:|blob:)/.test(src)){try{img.src=new URL(src,document.baseURI).href;}catch{/* Keep the authored source. */}}
+ src=img.getAttribute('src')||'';
  const stem=src.split('/').pop()?.replace(/\.webp$/,'');const spec=RESPONSIVE_IMAGES[stem];
  if(img.dataset.responsiveFor===src)return;
  img.dataset.responsiveFor=src;
  // An original-only photo must never inherit the previous image's responsive variants.
  if(!spec){img.removeAttribute('srcset');img.removeAttribute('sizes');img.decoding='async';return;}
- img.srcset=spec.widths.map(w=>`assets/${stem}--${w}.webp ${w}w`).concat(`${src} ${spec.original}w`).join(', ');
+ img.srcset=spec.widths.map(w=>`${assetURL(`assets/${stem}--${w}.webp`)} ${w}w`).concat(`${src} ${spec.original}w`).join(', ');
  img.sizes=img.classList.contains('hero-photo')?'(max-width: 760px) calc(100vw - 40px), 48vw':img.classList.contains('story-photo')?'(max-width: 760px) calc(100vw - 40px), 56vw':img.classList.contains('chapter-photo')?'(max-width: 760px) calc(100vw - 40px), 340px':img.id==='large-photo'?'(max-width: 740px) 85vw, 1100px':img.closest('dialog')?'(max-width: 740px) 85vw, 650px':'(max-width: 600px) calc(100vw - 40px), (max-width: 900px) 45vw, 33vw';
  img.decoding='async';
 }

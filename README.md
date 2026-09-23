@@ -1,8 +1,24 @@
-# MAMSS — school website, version 3.1
+# MAMSS — school website, version 4.0
 
 Live: **https://merebari7-web.github.io/mamss-website/**
 
 A premium, heritage-inspired redesign of the public school website: burgundy, cream and gold, authentic school photography, a focused eight-chapter layout and a local-first School Desk. The separately hosted **[MAMSS Prep](https://merebari7-web.github.io/mamss-prep/)** remains linked and unchanged. The source school site at mamss.com.ng and its private systems are not modified by this repository.
+
+## Version 4.0 — a real address for every chapter
+
+Each chapter now exists as its own document at its own address, so browsers, bookmarks, printed links, screen readers and search engines all see real pages instead of one long file behind `#hash` fragments:
+
+- `…/mamss-website/` — home (still carries all chapters for instant in-page switching)
+- `…/our-school/`, `…/learning/`, `…/school-life/`, `…/admissions/`, `…/resources/`, `…/school-desk/`, `…/contact/`
+
+How it works, and what is preserved:
+
+- **The build generates the chapter documents.** `npm run build` keeps the authored eight-chapter `index.html` as the single source of content, rewrites cross-chapter links to real addresses, and emits one document per chapter directory with its own `<title>`, description, canonical URL, Open Graph/Twitter card, breadcrumb structured data and (on Admissions) its FAQ structured data. The transform is deterministic and idempotent; CI fails if committed documents drift from their sources.
+- **In-page switching still exists on the home document.** Internal links are real `<a href>` addresses; the runtime intercepts them, switches chapters instantly and records the chapter's real URL with the History API — the pattern Google recommends for crawlable link structures. Old `#hash` deep links continue to work unchanged.
+- **Chapter documents stand alone.** Each carries only its own chapter, the shared header, footer, dialogs and tools. Links to other chapters are ordinary page links; shared scripts resolve every asset from the bundle's own location, so photographs, fonts and dialogs work one directory deeper. Without JavaScript, each document still shows its full chapter content.
+- **Search and discovery.** `sitemap.xml` lists all eight addresses, `robots.txt` points to it, and a branded `404.html` links every page for mistyped addresses. The site-search dialog navigates to the right page when a result lives in another chapter.
+- **Offline support follows.** The opt-in service worker (now `mamss-public-v10`) precaches all eight documents; an offline visitor can open any chapter directly. Clearing offline data still removes only this project's caches.
+- **Nothing else changed.** The School Desk, enquiry planner, gallery, loading screen, dark theme, reading controls and every privacy boundary are untouched. Runtime URLs now use `?v=4.0`.
 
 ## Version 3.1 — branded readiness screen
 
@@ -40,9 +56,9 @@ Node **22** is specified in `.nvmrc`. Production serves the checked-in static fi
 
 ```sh
 npm ci
-npm run build       # authored CSS/JS → site.min.css + site.min.js
+npm run build       # bundles + seven chapter documents + sitemap from index.html
 npm run serve       # gzip-enabled local preview, http://localhost:8230
-npm test            # 119 real-browser checks (60 core + 35 premium + 24 loading)
+npm test            # 147 real-browser checks (64 core + 35 premium + 24 loading + 24 chapter pages)
 ```
 
 The preview server binds to `0.0.0.0` for hosted previews. It is not a production server. An arbitrary static server can serve the built site, but compression affects performance measurements. Offline tests require localhost or HTTPS; they cannot run from `file://`.
@@ -53,7 +69,9 @@ The preview server binds to `0.0.0.0` for hosted previews. It is not a productio
 
 | Files | Purpose |
 |---|---|
-| `index.html` | Static content, eight chapters, metadata, navigation and built inline loading-screen regions |
+| `index.html` | Authored source of all content: eight chapters, metadata, navigation and built inline loading-screen regions. Cross-chapter links are rewritten to real addresses by the build |
+| `our-school/` … `contact/` | Build-generated chapter documents (`slug/index.html`), each with its own metadata; regenerate with `npm run build` after editing `index.html` |
+| `sitemap.xml`, `robots.txt`, `404.html` | Search-engine map of all eight addresses, crawl rules and the branded not-found page |
 | `loading.html`, `loading.css`, `loading.js` | Authored loading screen; build embeds it inside the marked regions of `index.html` |
 | `premium.css`, `premium.js` | Version-3 visual refinement, school stories, visit enquiry and photo-viewer enhancements; bundled last |
 | `site.css`, `site.js` | Eight-chapter design system, responsive layout, routing, focus/menu management, admission handoff and optional effects loader |
@@ -63,13 +81,13 @@ The preview server binds to `0.0.0.0` for hosted previews. It is not a productio
 | `motion.css`, `motion.js` | Optional, on-demand native-scroll effects; not part of startup bundles |
 | `sw.js`, `manifest.webmanifest` | Explicit opt-in public-site offline support and install metadata |
 | `assets/`, `licenses/` | Original school media, responsive image variants, local fonts and licence notices |
-| `scripts/build.cjs`, `scripts/server.cjs` | Reproducible build and gzip/project-prefix preview server |
-| `tests/site.cjs`, `tests/premium.cjs`, `tests/loading.cjs` | 60 core + 35 premium + 24 loading-screen behaviour, failure-recovery, privacy and accessibility checks |
+| `scripts/build.cjs`, `scripts/server.cjs` | Reproducible build (bundles, chapter documents, sitemap) and gzip/project-prefix preview server that serves directory documents |
+| `tests/site.cjs`, `tests/premium.cjs`, `tests/loading.cjs`, `tests/pages.cjs` | 64 core + 35 premium + 24 loading-screen + 24 chapter-page behaviour, failure-recovery, privacy and accessibility checks |
 | `lighthouserc.cjs`, `.github/workflows/` | Automated tests and deployed-site Lighthouse monitoring |
 
 ## Verification
 
-The version-3.1 regression suite contains **119 checks** in Chromium: 60 core, 35 premium and 24 loading-screen checks. It covers:
+The version-4.0 regression suite contains **147 checks** in Chromium: 64 core, 35 premium, 24 loading-screen and 24 chapter-page checks. It covers:
 
 - Open loading screen at **320, 390, 768 and 1440 px**, actual readiness versus stalled requests, skip/Escape focus, stylesheet/script/font/photo failure, independent critical styling, no-JavaScript fallback, motion preferences, deep links, history/printing and offline reload.
 - All three enquiry steps at **320, 375, 768 and 1440 px** with Axe checks, safe review/escaping, editable back navigation, reset confirmation, copy fallback, exact downloaded content, explicit reminder consent and a genuinely offline enquiry flow.
@@ -80,6 +98,7 @@ The version-3.1 regression suite contains **119 checks** in Chromium: 60 core, 3
 - Resource filtering/favourites, existing saved-data compatibility, explicit opt-in/reload persistence, reminder create/edit/delete, UTC conversion, import validation and inert user-entered markup.
 - Contact email-draft preparation, all 14 gallery image identities, slideshow behaviour, reading modes, optional effects and both kinds of printing.
 - A genuinely offline deep-link reload under a GitHub Pages-style project prefix, followed by clearing only that project's cache.
+- **Chapter pages:** each of the seven documents opens its own chapter with correct title, description, canonical and Open Graph metadata; all internal links on every document resolve to a real page; the home document switches chapters without a reload while recording real URLs; chapter documents follow cross-page links with real navigations; same-chapter section links stay put; search and the visit planner travel between pages correctly; each document passes accessibility scans, works without JavaScript and loads from the opt-in offline cache; sitemap, robots and the 404 page describe all eight addresses; and the build regenerates every document byte-for-byte.
 - Retained external destinations, no password inputs, no runtime errors in checked flows, reproducible bundles and no third-party runtime dependencies.
 
 Automated checks are not an accessibility certification or a guarantee of identical behaviour in every browser. Screen-reader, Safari/iOS and real-device review remain worthwhile. Portal authentication, email delivery and school-side systems are **not** tested by this suite.
@@ -119,6 +138,6 @@ Repeated carousel clones have been consolidated rather than duplicated. Statisti
 
 School management should verify current admission dates, fees, availability, contacts, leadership and educational claims; confirm student-photo permissions; supply an official high-resolution crest and approved privacy text; and provide missing history, anthem, newsletters, calendars and assignments. Publishing this front end does not establish those approvals or invent missing content.
 
-GitHub Pages serves `main` at the repository root; `.nojekyll` preserves the static structure. Keep all deployed relative paths intact. For this release, runtime URLs use `?v=3.1` and the scoped worker cache is `mamss-public-v9:<scope-path>`. Keep the HTML and worker’s precache URLs aligned, bump the worker version when changing the shell, rebuild, run the suite, and verify the live deployment. The hosting provider controls HTTPS, compression and HTTP security headers.
+GitHub Pages serves `main` at the repository root; `.nojekyll` preserves the static structure. Keep all deployed relative paths intact. For this release, runtime URLs use `?v=4.0` and the scoped worker cache is `mamss-public-v10:<scope-path>`. Keep the HTML and worker’s precache URLs aligned, bump the worker version when changing the shell, rebuild, run the suite, and verify the live deployment. Edit chapter content in the authored `index.html` and rebuild — the chapter documents, rewritten links and sitemap are generated, so never hand-edit them. The hosting provider controls HTTPS, compression and HTTP security headers.
 
 A CMS, authentication, online applications, payments, email delivery, push notifications, shared calendars or cloud synchronisation would require separately authorised integrations. No access tokens, credentials or private school records belong in this public repository.

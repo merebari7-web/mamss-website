@@ -188,7 +188,7 @@ async function test(name, fn) {
     for (const width of [375, 1440])
       await test(`${width}px: admission guide → class selection → personal checklist`, async () => {
         const p = await page(width);
-        await click(p, '.hero-actions a[href="#admissions"]');
+        await click(p, '.hero-actions a[href="admissions/"]');
         assert.equal(await p.evaluate(() => MAMSS.current), "admissions");
         await p.select("#admission-class", "SS 1");
         assert.match(
@@ -227,7 +227,7 @@ async function test(name, fn) {
       assert.equal(await p.$eval("#navigation", (e) => e.inert), true);
       assert.equal(await p.$eval("#main", (e) => e.inert), false);
       await p.click("#menu-toggle");
-      await p.click('#navigation>a[href="#resources"]');
+      await p.click('#navigation>a[href="resources/"]');
       assert.equal(await p.evaluate(() => MAMSS.current), "resources");
       assert.equal(
         await p.evaluate(() => document.activeElement.tagName),

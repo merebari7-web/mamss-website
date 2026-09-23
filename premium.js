@@ -10,6 +10,7 @@
   };
   const storyKeys = Object.keys(stories);
   const storyPhoto = one("#story-photo"), imageStatus = one("#story-image-status");
+  if (storyPhoto) {
   storyPhoto.addEventListener("error", () => { imageStatus.hidden = false; storyPhoto.style.visibility = "hidden"; });
   storyPhoto.addEventListener("load", () => { imageStatus.hidden = true; storyPhoto.style.visibility = ""; });
   one("#story-photo-retry").addEventListener("click", () => { storyPhoto.src = storyPhoto.getAttribute("src"); });
@@ -25,7 +26,7 @@
       if (active && focus) b.focus();
     });
     one("#story-panel").setAttribute("aria-labelledby", "story-tab-" + key);
-    one("#story-photo").src = `assets/${s.file}.webp`;
+    one("#story-photo").src = localPhoto(s.file);
     one("#story-photo").alt = s.alt;
     one("#story-title").textContent = s.title;
     one("#story-description").textContent = s.text;
@@ -45,6 +46,7 @@
       if (next !== undefined) { e.preventDefault(); selectStory(storyKeys[next], true); }
     });
   });
+  }
 
   // Answers never use storage, cookies, analytics or a network request.
   const topics = {
@@ -131,7 +133,7 @@
         one("#visit-reminder").textContent = "Added to my planner ✓";
         one("#visit-status").textContent = "Personal follow-up added. No booking, message or notification was sent.";
       });
-      one("#visit-desk").addEventListener("click", () => { chooseDeskTab("planner"); contentDialog.close(); MAMSS.go("school-desk"); });
+      one("#visit-desk").addEventListener("click", () => { chooseDeskTab("planner"); contentDialog.close(); MAMSS.open("school-desk"); });
     }
     if (focus) { const h = one("#dialog-heading"); h.tabIndex = -1; h.focus({ preventScroll: true }); }
   }
@@ -146,7 +148,7 @@
   function renderThumbnails() {
     fitPhoto();
     const strip = one(".photo-thumbs");
-    strip.innerHTML = visiblePhotos.map((p, i) => `<button type="button" data-photo-jump="${i}" tabindex="${i === photoIndex ? 0 : -1}"${i === photoIndex ? ' aria-current="true"' : ""} aria-label="View photograph ${i + 1}: ${escapeHtml(p.caption)}"><img src="assets/${p.file}--160.webp" alt="" width="80" height="60" loading="lazy" decoding="async"></button>`).join("");
+    strip.innerHTML = visiblePhotos.map((p, i) => `<button type="button" data-photo-jump="${i}" tabindex="${i === photoIndex ? 0 : -1}"${i === photoIndex ? ' aria-current="true"' : ""} aria-label="View photograph ${i + 1}: ${escapeHtml(p.caption)}"><img src="${assetURL(`assets/${p.file}--160.webp`)}" alt="" width="80" height="60" loading="lazy" decoding="async"></button>`).join("");
     const active = one('[aria-current="true"]', strip);
     if (active) requestAnimationFrame(() => { strip.scrollLeft = active.offsetLeft - strip.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2; });
   }

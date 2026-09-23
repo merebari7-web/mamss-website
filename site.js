@@ -24,15 +24,81 @@
     desk: "school-desk",
     contact: "contact",
   };
+  /* Every chapter also exists as a real document in its own directory, so the
+     address bar, sharing, history and search engines all see real URLs. */
+  const slugs = {
+    school: "our-school",
+    learning: "learning",
+    life: "school-life",
+    admissions: "admissions",
+    resources: "resources",
+    desk: "school-desk",
+    contact: "contact",
+  };
+  const pageBySlug = Object.fromEntries(
+    Object.entries(slugs).map(([page, slug]) => [slug, page]),
+  );
+  /* Section addresses that exist inside each chapter, mirrored by the build. */
+  const sections = {
+    home: "home", news: "home", "dates-to-know": "home", "campus-stories": "home",
+    about: "school", purpose: "school", principal: "school", "why-mamss": "school", leadership: "school",
+    learning: "learning", facilities: "learning",
+    "school-life": "life", gallery: "life", testimonials: "life",
+    admissions: "admissions", "admission-steps": "admissions", "admission-faq": "admissions",
+    resources: "resources", "school-desk": "desk", contact: "contact",
+  };
+  const lastSegment = (path) => {
+    const match = path.replace(/\/+$/, "").match(/[^/]+$/);
+    return match ? match[0] : "";
+  };
+  const pageFromPath = () => pageBySlug[lastSegment(location.pathname)] || "home";
+  const pageURL = (page) =>
+    page === "home"
+      ? new URL("./", SITE_ROOT).href
+      : new URL(slugs[page] + "/", SITE_ROOT).href;
   let current = "home",
     menuWasOpen = false;
   function resolve(id) {
     const target = byId(id);
     return (
       target?.closest("[data-page]")?.dataset.page ||
+      sections[id] ||
       Object.keys(primary).find((k) => primary[k] === id) ||
       (titles[id] ? id : "home")
     );
+  }
+  /* A link target on any page: {page, id} for internal destinations, else null. */
+  function linkTarget(a) {
+    const href = a.getAttribute("href") || "";
+    if (href.startsWith("#")) {
+      const id = href.slice(1);
+      if (!id) return null;
+      if (id === "main") return { page: current, id: "main" };
+      return byId(id) || sections[id] || titles[id]
+        ? { page: resolve(id), id }
+        : null;
+    }
+    let url;
+    try {
+      url = new URL(href, location.href);
+    } catch {
+      return null;
+    }
+    if (url.origin !== location.origin) return null;
+    const slug = lastSegment(url.pathname);
+    if (pageBySlug[slug])
+      return {
+        page: pageBySlug[slug],
+        id: url.hash
+          ? decodeURIComponent(url.hash.slice(1)) || primary[pageBySlug[slug]]
+          : primary[pageBySlug[slug]],
+      };
+    if (url.pathname === new URL("./", SITE_ROOT).pathname)
+      return {
+        page: "home",
+        id: url.hash ? decodeURIComponent(url.hash.slice(1)) || "home" : "home",
+      };
+    return null;
   }
   function go(id = "home", options = {}) {
     id = String(id).replace(/^#/, "");
@@ -52,32 +118,33 @@
     document.body.dataset.chapter = page;
     document.title = titles[page];
     if (options.history !== false) {
-      const hash = "#" + (byId(id) ? id : primary[page]);
-      if (location.hash !== hash)
+      const anchor = byId(id),
+        isSection = anchor && id !== primary[page] && id !== "home";
+      const url = isSection
+        ? pageURL(page) + "#" + id
+        : pageURL(page);
+      if (location.href !== url)
         history[options.replace ? "replaceState" : "pushState"](
           { page },
           "",
-          hash,
+          url,
         );
     }
-    const exactNav = [...nav.querySelectorAll('a[href^="#"]')].some(
-      (a) => a.hash === "#" + id,
-    );
     document
-      .querySelectorAll('#navigation a[href^="#"],.mobile-dock a')
+      .querySelectorAll('#navigation a[href],.mobile-dock a')
       .forEach((a) => {
-        const active = a.closest(".mobile-dock")
-          ? a.dataset.navPage === page
-          : a.hash === "#" + (exactNav ? id : primary[page]);
+        const target = linkTarget(a);
+        const active = !!target && target.page === page;
         if (active) a.setAttribute("aria-current", "page");
         else a.removeAttribute("aria-current");
       });
     document.querySelectorAll(".nav-dropdown").forEach((d) =>
       d.classList.toggle(
         "route-current",
-        [...d.querySelectorAll('a[href^="#"]')].some(
-          (a) => resolve(a.hash.slice(1)) === page,
-        ),
+        [...d.querySelectorAll("a[href]")].some((a) => {
+          const target = linkTarget(a);
+          return target && target.page === page;
+        }),
       ),
     );
     closeMenu();
@@ -109,8 +176,21 @@
     if (document.getElementById("scroll-fx-toggle"))
       window.dispatchEvent(new Event("resize"));
   }
+  /* Real-address navigation: switch instantly when the chapter already lives
+     in this document, or follow the link to its own page otherwise. */
+  function open(id = "home") {
+    id = String(id).replace(/^#/, "");
+    const page = resolve(id);
+    if (pages.some((el) => el.dataset.page === page)) return go(id);
+    const section =
+      id !== primary[page] && id !== "home" && (sections[id] || byId(id))
+        ? "#" + id
+        : "";
+    location.href = pageURL(page) + section;
+  }
   window.MAMSS = {
     go,
+    open,
     resolve,
     get current() {
       return current;
@@ -119,7 +199,8 @@
   document.addEventListener(
     "click",
     (event) => {
-      const link = event.target.closest('a[href^="#"]');
+      if (event.defaultPrevented || event.button !== 0) return;
+      const link = event.target.closest("a[href]");
       if (
         !link ||
         event.metaKey ||
@@ -130,21 +211,31 @@
         link.hasAttribute("download")
       )
         return;
-      const id = link.hash.slice(1);
-      if (!id) return;
-      if (id === "main" || byId(id) || titles[id]) {
+      const target = linkTarget(link);
+      if (!target) return;
+      if (target.id === "main") {
         event.preventDefault();
-        go(id);
+        byId("main").setAttribute("tabindex", "-1");
+        byId("main").focus({ preventScroll: true });
+        return;
       }
+      event.preventDefault();
+      open(target.id);
     },
     true,
   );
   const locationChange = () => {
-    let id = "home";
+    const pathPage = pageFromPath();
+    let id = "";
     try {
-      id = decodeURIComponent(location.hash.slice(1)) || "home";
+      id = decodeURIComponent(location.hash.slice(1)) || "";
     } catch {}
-    go(id, { history: false });
+    go(
+      id && (pathPage === "home" || resolve(id) === pathPage)
+        ? id
+        : primary[pathPage],
+      { history: false },
+    );
   };
   window.addEventListener("popstate", locationChange);
   window.addEventListener("hashchange", locationChange);
@@ -252,6 +343,7 @@
     ],
   };
   function renderAudience(role, announce = false) {
+    if (!byId("audience-links")) return;
     const label = {
       parent: "parents and guardians",
       student: "students",
@@ -287,21 +379,25 @@
       if (select) select.value = "School visit";
     }
   });
-  byId("admission-class").addEventListener("change", (e) => {
+  const admissionClassSelect = byId("admission-class");
+  if (admissionClassSelect)
+    admissionClassSelect.addEventListener("change", (e) => {
     const selected = e.target.value;
     byId("admission-guidance").textContent = selected
       ? `${selected} appears in the published admission flyer. Ask the school about current places, requirements, fees and the next assessment opportunity.`
       : "";
   });
-  byId("start-admission-checklist").addEventListener("click", () => {
-    const entry = byId("admission-class").value;
-    if (entry) {
-      deskState.entry = entry;
-      commitDesk();
-    }
-    chooseDeskTab("admissions");
-    go("school-desk");
-  });
+  const startChecklist = byId("start-admission-checklist");
+  if (startChecklist)
+    startChecklist.addEventListener("click", () => {
+      const entry = byId("admission-class").value;
+      if (entry) {
+        deskState.entry = entry;
+        commitDesk();
+      }
+      chooseDeskTab("admissions");
+      open("school-desk");
+    });
   // Existing 3D preference is retained, but animation code is no longer a startup dependency.
   let depthLoaded = false;
   function loadDepth() {
@@ -309,9 +405,9 @@
     depthLoaded = true;
     const css = document.createElement("link");
     css.rel = "stylesheet";
-    css.href = "motion.css";
+    css.href = new URL("motion.css", SITE_ROOT).href;
     const js = document.createElement("script");
-    js.src = "motion.js";
+    js.src = new URL("motion.js", SITE_ROOT).href;
     js.defer = true;
     js.onerror = () => {
       depthLoaded = false;
@@ -364,8 +460,7 @@
       .getRegistrations()
       .then((regs) =>
         regs.forEach((reg) => {
-          if (reg.scope === new URL("./", location.href).href)
-            reg.update().catch(() => {});
+          if (reg.scope === SITE_ROOT) reg.update().catch(() => {});
         }),
       )
       .catch(() => {});
@@ -501,9 +596,15 @@
   window.addEventListener("scroll", headerScroll, { passive: true });
   headerScroll();
 
-  let initial = "home";
+  let initial = "";
   try {
-    initial = decodeURIComponent(location.hash.slice(1)) || "home";
+    initial = decodeURIComponent(location.hash.slice(1)) || "";
   } catch {}
-  go(initial, { history: false, focus: false, scroll: initial !== "home" });
+  const initialPage = pageFromPath();
+  go(
+    initial && (initialPage === "home" || resolve(initial) === initialPage)
+      ? initial
+      : primary[initialPage],
+    { history: false, focus: false, scroll: !!initial && initial !== "home" },
+  );
 })();

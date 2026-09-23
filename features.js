@@ -47,7 +47,6 @@ const heroSlides=[
 ];
 const originalSlogans=['EXCELLENCE IN EDUCATION.','WHERE FUTURES SHINE.','EMPOWERING NEXT-GEN LEADERS.','INNOVATION & BRILLIANCE.','YOUR JOURNEY BEGINS HERE.','FOSTERING MORAL VALUES.','NURTURING GREAT MINDS.','CHARACTER, KNOWLEDGE, SUCCESS.','BUILDING TOMORROW’S INNOVATORS.','STRIVING FOR ACADEMIC PERFECTION.','INSPIRING A LOVE FOR LEARNING.','SHAPING DESTINIES DAILY.','INTEGRITY IN EVERY ACTION.','A TRADITION OF EXCELLENCE.','DISCOVER YOUR TRUE POTENTIAL.'];
 let heroIndex=0,heroTimer=null,heroPlaying=false,sloganIndex=0;
-const localPhoto = name => `assets/${name}.webp`;
 function changeHero(direction){
  heroIndex=(heroIndex+direction+heroSlides.length)%heroSlides.length;
  const [file,alt,title,subtitle]=heroSlides[heroIndex];
@@ -58,6 +57,7 @@ function changeHero(direction){
 }
 function stopHeroTimer(){if(heroTimer)clearInterval(heroTimer);heroTimer=null;}
 function startHeroTimer(){stopHeroTimer();if(heroPlaying&&(!window.MAMSS||MAMSS.current==='home')&&!document.hidden&&!contentDialog.open&&!lightbox.open)heroTimer=setInterval(()=>changeHero(1),6000);}
+if($('#hero-previous')&&$('.hero-visual')){
 $('#hero-previous').addEventListener('click',()=>{changeHero(-1);startHeroTimer();});
 $('#hero-next').addEventListener('click',()=>{changeHero(1);startHeroTimer();});
 $('#hero-play').addEventListener('click',()=>{
@@ -67,6 +67,7 @@ $('#hero-play').addEventListener('click',()=>{
 });
 $('.hero-visual').addEventListener('mouseenter',stopHeroTimer);$('.hero-visual').addEventListener('mouseleave',startHeroTimer);
 $('.hero-visual').addEventListener('focusin',stopHeroTimer);$('.hero-visual').addEventListener('focusout',()=>setTimeout(()=>{if(!$('.hero-visual').contains(document.activeElement))startHeroTimer();},0));
+}
 document.addEventListener('visibilitychange',()=>document.hidden?stopHeroTimer():startHeroTimer());
 $$('dialog').forEach(d=>new MutationObserver(()=>{d.open?stopHeroTimer():startHeroTimer();}).observe(d,{attributes:true,attributeFilter:['open']}));
 
@@ -91,7 +92,7 @@ const facilityData={
  students:{eyebrow:'THE MAMSS STUDENT EXPERIENCE',title:'Knowledge. Character. Community.',text:'MAMSS describes a student culture that balances academic rigour with Catholic values. Discipline, moral uprightness, and a commitment to excellence sit alongside learning and shared school experiences.',items:['A Catholic-centred environment','Character formation and discipline','A community of learners and friends']}
 };
 function selectFacility(key,focus=false){
- const x=facilityData[key];$$('[data-facility]').forEach(b=>{const active=b.dataset.facility===key;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus();});
+ const x=facilityData[key];if(!x||!$('#facility-panel'))return;$$('[data-facility]').forEach(b=>{const active=b.dataset.facility===key;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus();});
  $('#facility-panel').setAttribute('aria-labelledby',`tab-${key}`);
  $('#facility-panel').innerHTML=`<p class="eyebrow">${x.eyebrow}</p><h3>${x.title}</h3><p>${x.text}</p><ul>${x.items.map(t=>`<li>${t}</li>`).join('')}</ul><button class="button" data-action="admissions">Apply & join our school <span>↗</span></button>`;
 }
@@ -109,11 +110,14 @@ const testimonials=[
 ];
 let testimonialIndex=0;
 function renderTestimonials(){
- $('#testimonial-cards').innerHTML=[testimonials[testimonialIndex],testimonials[(testimonialIndex+1)%4]].map(t=>`<article><span class="quote-mark" aria-hidden="true">“</span><blockquote>${escapeHtml(t.quote)}</blockquote><div class="testimonial-person"><img src="assets/testimonial-avatar.webp" alt="" width="42" height="42"><div><b>${t.name}</b><span>${t.role}</span></div></div></article>`).join('');
+ if(!$('#testimonial-cards'))return;
+ $('#testimonial-cards').innerHTML=[testimonials[testimonialIndex],testimonials[(testimonialIndex+1)%4]].map(t=>`<article><span class="quote-mark" aria-hidden="true">“</span><blockquote>${escapeHtml(t.quote)}</blockquote><div class="testimonial-person"><img src="${localPhoto('testimonial-avatar')}" alt="" width="42" height="42"><div><b>${t.name}</b><span>${t.role}</span></div></div></article>`).join('');
  $('#testimonial-count').textContent=`${String(testimonialIndex+1).padStart(2,'0')} / 04`;
 }
+if($('#testimonial-cards')){
 $('#testimonial-previous').addEventListener('click',()=>{testimonialIndex=(testimonialIndex+3)%4;renderTestimonials();});
-$('#testimonial-next').addEventListener('click',()=>{testimonialIndex=(testimonialIndex+1)%4;renderTestimonials();});renderTestimonials();
+$('#testimonial-next').addEventListener('click',()=>{testimonialIndex=(testimonialIndex+1)%4;renderTestimonials();});
+}renderTestimonials();
 
 const resources=[
  {title:'MAMSS Prep',description:'Senior-secondary study resources, practice questions, and a CBT hall. Open the linked MAMSS Prep website in a new tab.',category:['students','parents','staff'],label:'EXAM PREPARATION',href:schoolLinks.prep,linkLabel:'Open MAMSS Prep'},
@@ -136,13 +140,14 @@ const resources=[
 ];
 let resourceFilter='all';
 function renderResources(){
+ if(!$('#resource-search'))return;
  const query=$('#resource-search').value.trim().toLowerCase();
  const matches=resources.filter(r=>(resourceFilter==='all'||r.category.includes(resourceFilter))&&`${r.title} ${r.description} ${r.label}`.toLowerCase().includes(query));
  $('#resource-status').textContent=`${matches.length} ${matches.length===1?'resource':'resources'}${query?' matching your search':''}`;
  $('#resource-grid').innerHTML=matches.length?matches.map(r=>`<article class="resource-card"><span>${r.label}</span><h3>${r.title}</h3><p>${r.description}</p>${r.href?externalLink(r.href,r.linkLabel||'Open official service','text-link'):`<button class="text-link" data-action="${r.action}">View details <span>↗</span></button>`}</article>`).join(''):`<div class="resource-empty"><h3>No matching resources</h3><p>Try “results”, “CBT”, “library”, or clear your search to see all resources.</p><button class="text-link" data-action="clear-search">Clear search & filters <span>↗</span></button></div>`;
 }
 $$('[data-resource-filter]').forEach(b=>b.addEventListener('click',()=>{resourceFilter=b.dataset.resourceFilter;$$('[data-resource-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});renderResources();}));
-$('#resource-search').addEventListener('input',renderResources);renderResources();
+const resourceSearch=$('#resource-search');if(resourceSearch)resourceSearch.addEventListener('input',renderResources);renderResources();
 
 function unavailableResource(kind){
  const details={history:['OUR HISTORY','Our story. Our heritage.','The original website includes an “Our History” menu item, but it links back to the homepage and does not publish a history article.','Ask the school for its approved history, founding date, and key milestones.'],anthem:['OUR SCHOOL ANTHEM','A voice for our community.','The original website includes a “School Anthem” menu item, but does not provide anthem lyrics or an audio recording at that link.','Ask the school for the official lyrics or an approved recording.'],newsletters:['PARENT NEWSLETTERS','Stay close to school life.','The original “Newsletters” links lead to the homepage or an empty anchor. No downloadable newsletter was available at those links when reviewed.','Ask the school office for the latest newsletter and how parents receive future editions.'],assignments:['HOLIDAY ASSIGNMENTS','Keep your learning growing.','The original footer’s “Holiday Assignments” link opens the school gallery. That page currently displays school news rather than downloadable class assignments.','Contact your class teacher or the school office to request the current assignment for your class.']}[kind];
@@ -181,11 +186,11 @@ const featureActions={
 document.addEventListener('click',e=>{const button=e.target.closest('[data-action]');if(button&&featureActions[button.dataset.action]){closeMenu();featureActions[button.dataset.action]();}});
 
 // Restore the PTA notice found on the original gallery/news page.
-$('#news .news-grid').insertAdjacentHTML('beforeend',`<button class="news-card pta-news" data-action="calendar"><span class="pta-date"><span>PTA NOTICE</span><b>06</b><strong>OCTOBER</strong><small>Year & time to be confirmed</small></span><span class="news-body"><span class="news-meta">PARENTS & GUARDIANS <span>CONFIRM WITH THE SCHOOL</span></span><span class="news-title">Stay connected with our parent community</span><span class="news-summary">The original website mentions a PTA meeting on 6 October. Please confirm the year, time, and arrangements before attending.</span><span class="text-link">View dates & notice <span>↗</span></span></span></button>`);
-$('#news .container').insertAdjacentHTML('beforeend',`<div class="news-archive-link">${externalLink(schoolLinks.news,'Browse the original news & events archive','text-link')}</div>`);
+const newsGrid=$('#news .news-grid');if(newsGrid)newsGrid.insertAdjacentHTML('beforeend',`<button class="news-card pta-news" data-action="calendar"><span class="pta-date"><span>PTA NOTICE</span><b>06</b><strong>OCTOBER</strong><small>Year & time to be confirmed</small></span><span class="news-body"><span class="news-meta">PARENTS & GUARDIANS <span>CONFIRM WITH THE SCHOOL</span></span><span class="news-title">Stay connected with our parent community</span><span class="news-summary">The original website mentions a PTA meeting on 6 October. Please confirm the year, time, and arrangements before attending.</span><span class="text-link">View dates & notice <span>↗</span></span></span></button>`);
+const newsContainer=$('#news .container');if(newsContainer)newsContainer.insertAdjacentHTML('beforeend',`<div class="news-archive-link">${externalLink(schoolLinks.news,'Browse the original news & events archive','text-link')}</div>`);
 
 // Expand the previously concise article with the original school's published details.
-$('#visit-news').addEventListener('click',()=>showDialog(`<p class="eyebrow">SCHOOL NEWS · PUBLISHED 02 JUNE 2026</p><h2>A special visit to<br><em>our school community.</em></h2><p><strong>Visit date: Wednesday, 29 April 2026</strong></p><p>The original school article reports that the MAMSS community welcomed its Superior, Very Rev. Fr. Augustine Nwosu, C.S.Sp., for an official working visit.</p><p>The visit included interactions with staff and students, campus assessments, and words of encouragement. The school expressed gratitude for his guidance, leadership, and dedication to its growth.</p><img src="assets/visit020.webp" alt="Clergy during the official working visit"><img src="assets/visit031.webp" alt="A student welcomes a visiting member of the clergy"><img src="assets/visit001.webp" alt="The school community welcomes the visiting delegation">${externalLink('https://schoolsnigeria.com.ng/mamss/read/official-working-visit-at-mater-misericordiae-secondary-school-1','Read the original school article','source-link')}`));
+const visitNews=$('#visit-news');if(visitNews)visitNews.addEventListener('click',()=>showDialog(`<p class="eyebrow">SCHOOL NEWS · PUBLISHED 02 JUNE 2026</p><h2>A special visit to<br><em>our school community.</em></h2><p><strong>Visit date: Wednesday, 29 April 2026</strong></p><p>The original school article reports that the MAMSS community welcomed its Superior, Very Rev. Fr. Augustine Nwosu, C.S.Sp., for an official working visit.</p><p>The visit included interactions with staff and students, campus assessments, and words of encouragement. The school expressed gratitude for his guidance, leadership, and dedication to its growth.</p><img src="${localPhoto('visit020')}" alt="Clergy during the official working visit"><img src="${localPhoto('visit031')}" alt="A student welcomes a visiting member of the clergy"><img src="${localPhoto('visit001')}" alt="The school community welcomes the visiting delegation">${externalLink('https://schoolsnigeria.com.ng/mamss/read/official-working-visit-at-mater-misericordiae-secondary-school-1','Read the original school article','source-link')}`));
 
 $('#privacy-button').addEventListener('click',()=>showDialog(`<p class="eyebrow">WEBSITE INFORMATION</p><h2>Simple. Respectful.<br><em>Transparent.</em></h2><p>This is a redesigned public-facing website. The original school website and existing portals remain separate.</p><h3>Your privacy</h3><p>This preview does not use analytics, advertising cookies, payment processing, or an application database. Entry-class selections, searches, and contact drafts are processed only in the page and are not stored or sent to a server by this preview.</p><h3>Contact drafts</h3><p>The contact and feedback form prepares a message for your own email application. You must send the email yourself. The original school complaint form is linked separately and operates under the school’s own policies.</p><h3>External services</h3><p>Result checking, CBT, staff and student logins, the e-library, and the original complaint form open on existing school/provider websites. They may require your school account or access credential. We do not collect portal passwords or result PINs here.</p><p>Telephone links open your calling app. Maps, WhatsApp, Facebook, and email links open the respective service or application, whose privacy practices may differ.</p><h3>Publication review</h3><p>School management should confirm all dates, statistics, testimonials, contact details, photo permissions, and external service links before launch. Some original menu items link only to the homepage; these are explicitly marked as needing school-supplied content. Replace this preview notice with the school’s approved privacy notice before publication.</p>`));
 

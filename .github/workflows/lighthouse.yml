@@ -2,7 +2,7 @@ name: Lighthouse CI
 on:
   push:
     branches: [main]
-    paths: ['*.html', '*.css', '*.js', '*.webmanifest', 'assets/**', 'lighthouserc.cjs', '.github/workflows/lighthouse.yml']
+    paths: ['**/*.html', '*.css', '*.js', 'scripts/**', '*.webmanifest', 'sitemap.xml', 'robots.txt', 'assets/**', 'lighthouserc.cjs', '.github/workflows/lighthouse.yml']
   workflow_dispatch:
 permissions:
   contents: read
