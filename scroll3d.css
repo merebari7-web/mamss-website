@@ -1,0 +1,131 @@
+/* MAMSS — scroll-linked 3D depth.
+   Runs on the compositor through native scroll-driven animations where the
+   browser supports them, so there is no perpetual requestAnimationFrame loop
+   and no scroll hijacking. Every transform shrinks or lifts an element; none
+   grows it horizontally, so no chapter can overflow its viewport.
+   Entirely disabled for reduced motion and for the School Desk motion setting. */
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-scroll3d="on"] {
+    --s3d-depth: 68px;
+    --s3d-lift: 28px;
+    --s3d-tilt: 6deg;
+  }
+
+  /* The existing 2D reveal steps aside so the two never fight over transform. */
+  html[data-scroll3d="on"] .js .reveal,
+  html[data-scroll3d="on"] .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  html[data-scroll3d="on"] [data-s3d] {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+
+  /* ---- Depth rise: content arrives from behind the page plane ---- */
+  html[data-scroll3d="on"] [data-s3d="rise"] {
+    animation: s3d-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 4% cover 30%;
+    transform-origin: 50% 100%;
+  }
+
+  /* Depth here is transform-only, deliberately. Fading text in and out as it
+     crosses the viewport leaves it at a fractional opacity for as long as the
+     visitor is mid-scroll, which measurably lowers its contrast against the
+     page. Moving it in space costs nothing in legibility. */
+  @keyframes s3d-rise {
+    from {
+      transform: perspective(1400px) translate3d(0, var(--s3d-lift), calc(var(--s3d-depth) * -1))
+        rotateX(var(--s3d-tilt)) scale(0.965);
+    }
+    to {
+      transform: perspective(1400px) translate3d(0, 0, 0) rotateX(0) scale(1);
+    }
+  }
+
+  /* Staggered siblings read as one card deck rather than a single slab. */
+  html[data-scroll3d="on"] [data-s3d="rise"][data-s3d-i="1"] { animation-range: entry 6% cover 33%; }
+  html[data-scroll3d="on"] [data-s3d="rise"][data-s3d-i="2"] { animation-range: entry 8% cover 36%; }
+  html[data-scroll3d="on"] [data-s3d="rise"][data-s3d-i="3"] { animation-range: entry 10% cover 39%; }
+
+  /* ---- Parallax photography: the image drifts inside a clipped frame ---- */
+  html[data-scroll3d="on"] [data-s3d="frame"] {
+    overflow: hidden;
+    transform: translateZ(0);
+  }
+
+  html[data-scroll3d="on"] [data-s3d="frame"] > img {
+    animation: s3d-pan linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+    will-change: transform;
+  }
+
+  @keyframes s3d-pan {
+    from { transform: scale(1.08) translate3d(0, -2.2%, 0); }
+    to   { transform: scale(1.08) translate3d(0, 2.2%, 0); }
+  }
+
+  /* ---- Chapter photographs settle out of a slight recline ---- */
+  html[data-scroll3d="on"] [data-s3d="stage"] {
+    animation: s3d-stage linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 42%;
+    transform-origin: 50% 85%;
+  }
+
+  @keyframes s3d-stage {
+    from { transform: perspective(1600px) rotateX(9deg) scale(0.94); }
+    to   { transform: perspective(1600px) rotateX(0) scale(1); }
+  }
+
+  /* ---- Hero depth, only when the separate optional 3D layer is not running ---- */
+  html[data-scroll3d="on"]:not([data-scroll-fx="on"]) [data-s3d="hero"] {
+    animation: s3d-hero linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 92%;
+  }
+
+  @keyframes s3d-hero {
+    from { transform: perspective(1800px) translate3d(0, 0, 0); }
+    to   { transform: perspective(1800px) translate3d(0, -3%, -90px); }
+  }
+
+  /* ---- Pointer tilt: fine pointers only, never on touch ---- */
+  @media (hover: hover) and (pointer: fine) {
+    html[data-scroll3d="on"] [data-s3d-tilt] {
+      transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+      transform: perspective(900px) rotateX(calc(var(--s3d-ty, 0) * -1deg))
+        rotateY(calc(var(--s3d-tx, 0) * 1deg)) translateZ(0);
+    }
+  }
+
+  /* Fallback for browsers without scroll-driven animations: a one-shot
+     3D reveal driven by IntersectionObserver, no scroll listener. */
+  @supports not (animation-timeline: view()) {
+    html[data-scroll3d="fallback"] [data-s3d="rise"],
+    html[data-scroll3d="fallback"] [data-s3d="stage"] {
+      transform: perspective(1400px) translate3d(0, var(--s3d-lift, 28px), -60px)
+        rotateX(5deg) scale(0.97);
+      transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: calc(var(--s3d-i, 0) * 80ms);
+    }
+
+    html[data-scroll3d="fallback"] [data-s3d].s3d-in {
+      transform: none;
+    }
+  }
+}
+
+/* Printing and reduced motion always get the plain, fully visible page. */
+@media print {
+  html[data-scroll3d] [data-s3d] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -1,12 +1,16 @@
 /* Opt-in public caching only. School portals and other Pages projects are separate. */
 const ROOT = new URL("./", self.location.href).href;
 const ROOT_PATH = new URL(ROOT).pathname;
-const CACHE = "mamss-public-v9:" + ROOT_PATH;
+const CACHE = "mamss-public-v10:" + ROOT_PATH;
 const SHELL = [
   "./",
   "index.html",
   "site.min.css?v=3.1",
   "site.min.js?v=3.1",
+  "connect.css?v=3.2",
+  "connect.js?v=3.2",
+  "scroll3d.css?v=3.2",
+  "scroll3d.js?v=3.2",
   "manifest.webmanifest",
   "assets/crest.webp",
   "assets/app-icon-192.png",

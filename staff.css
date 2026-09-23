@@ -1,0 +1,339 @@
+/* MAMSS — private staff enquiry desk. Self-contained: it deliberately does not
+   load the public site bundles, so the public page stays exactly as light as
+   it was and this page ships nothing a visitor does not need. */
+
+:root {
+  --wine: #6e243d;
+  --wine-dark: #441729;
+  --ink: #292529;
+  --muted: #665f61;
+  --paper: #fcfaf7;
+  --card: #fff;
+  --line: #e4ddda;
+  --rose: #f3e9eb;
+  --gold: #b08a4c;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #ece3df;
+    --muted: #a2949b;
+    --paper: #161013;
+    --card: #1e171c;
+    --line: #33282f;
+    --rose: #251b22;
+    --wine: #c98ba4;
+    --gold: #d2a65e;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+}
+
+.staff-skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  padding: 0.6rem 1rem;
+  background: var(--wine-dark);
+  color: #fff;
+  z-index: 10;
+}
+
+.staff-skip:focus { left: 0; }
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.staff-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.4rem;
+  background: var(--wine-dark);
+  color: #fff;
+}
+
+.staff-brand {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.staff-brand img { border-radius: 4px; }
+
+.staff-brand p {
+  margin: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  opacity: 0.78;
+}
+
+.staff-brand h1 {
+  margin: 0.1rem 0 0;
+  font-family: "Libre Caslon Display", Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+.staff-session {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  font-size: 0.86rem;
+}
+
+.staff-session button,
+.staff-back {
+  padding: 0.42rem 0.85rem;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 0.83rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.staff-session button:hover,
+.staff-back:hover { background: rgb(255 255 255 / 14%); }
+
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.6rem 1.2rem 4rem;
+}
+
+.staff-state {
+  margin: 0 0 1.2rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.staff-state:empty { display: none; }
+
+.staff-card {
+  margin-bottom: 1.6rem;
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.staff-card h2 {
+  margin: 0 0 0.4rem;
+  font-family: "Libre Caslon Display", Georgia, serif;
+  font-weight: 400;
+  font-size: 1.35rem;
+}
+
+.staff-card > p { margin: 0 0 1rem; color: var(--muted); font-size: 0.92rem; }
+
+#staff-form { display: grid; gap: 0.3rem; max-width: 380px; }
+
+#staff-form label {
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+#staff-form input {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+#staff-form button {
+  justify-self: start;
+  margin-top: 1rem;
+  padding: 0.62rem 1.3rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--wine);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#staff-form button[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+.staff-error {
+  margin: 0.7rem 0 0;
+  color: #9b1c31;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .staff-error { color: #f2a0b0; }
+}
+
+.staff-error:empty { display: none; }
+
+.staff-note {
+  margin: 1.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.staff-desk-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.staff-desk-head p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+
+.staff-filters { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.staff-filters button {
+  padding: 0.32rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.staff-filters button[aria-pressed="true"] {
+  border-color: var(--wine);
+  background: var(--rose);
+  color: var(--wine);
+  font-weight: 600;
+}
+
+.staff-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.9rem; }
+
+.enquiry {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--wine);
+  border-radius: 10px;
+  background: var(--paper);
+}
+
+.enquiry[data-status="closed"] { opacity: 0.68; border-left-color: var(--line); }
+
+.enquiry-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.enquiry-top h3 { margin: 0; font-size: 1.02rem; }
+
+.enquiry-when { color: var(--muted); font-size: 0.78rem; }
+
+.enquiry-tag {
+  display: inline-block;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  background: var(--rose);
+  color: var(--wine);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.enquiry dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 0.9rem;
+  margin: 0.8rem 0 0;
+  font-size: 0.89rem;
+}
+
+.enquiry dt { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.enquiry dd { margin: 0; overflow-wrap: anywhere; }
+.enquiry dd a { color: var(--wine); }
+
+.enquiry-message {
+  margin: 0.8rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.enquiry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 0.9rem;
+}
+
+.enquiry-actions button {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.enquiry-actions button[aria-pressed="true"] {
+  border-color: var(--wine);
+  background: var(--wine);
+  color: #fff;
+  font-weight: 600;
+}
+
+.enquiry-note {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.8rem;
+}
+
+.enquiry-note label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+.enquiry-note textarea {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+}
+
+.enquiry-saved { font-size: 0.78rem; color: var(--muted); }
+
+@media (max-width: 520px) {
+  .enquiry dl { grid-template-columns: 1fr; gap: 0.1rem; }
+  .enquiry dt { margin-top: 0.45rem; }
+}

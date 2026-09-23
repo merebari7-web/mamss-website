@@ -1,4 +1,52 @@
-# Advanced improvements — premium school website, version 3.1
+# Advanced improvements — premium school website, version 3.2
+
+## Version 3.2 — the school-connected tier
+
+Everything below this section still describes a website that sends nothing. Version 3.2 adds two features that **do** contact a server, plus the platform work supporting them. Both are opt-in at the moment of use, and both fall back to the existing telephone and email routes whenever the server is absent, offline or refusing.
+
+### Sending a visit enquiry to the school office
+
+- The guided three-step enquiry is unchanged. The review step gains one extra panel: *Prefer the school to contact you?*
+- To send, a family gives a name and at least an email address or a phone number, and ticks a consent box that states plainly that the enquiry will be delivered to the school and stored there.
+- The server re-validates every field independently of the browser: allowed entry classes only, a proposed day that is not in the past in Lagos time, a preferred time only alongside a day, known topic keys only, and a 400-character question.
+- A successful send returns a reference number. It is explicitly **not** a booking, an application, a reserved place or a confirmed date, and the confirmation says so.
+- Five submissions per hour are accepted from one source. The source is a salted, truncated, one-way hash; the address itself is never stored and staff never see the hash.
+- If the send fails for any reason — offline, rate limited, no server on this deployment — the email draft, copy, download and telephone routes are all still there and the error says which to use.
+- Resetting the enquiry clears the page, but it cannot recall an enquiry already delivered. The school must be telephoned to withdraw one.
+
+### The published-information assistant
+
+- Opened from the existing quick-help panel, in a native modal dialog with proper focus containment and Escape dismissal.
+- Answers come from a knowledge base transcribed from this website's own published content, held in `netlify/lib/knowledge.mts`. Where the school has published nothing — fees, current places, uniform costs, boarding, deadlines, any future examination date — that gap is recorded explicitly so the assistant refers the family to the admissions line instead of guessing.
+- It is instructed never to invent fees, places, deadlines, results or guarantees; to state that the four printed 2026 examination dates have passed and no new date exists; to refuse personal or sensitive details; to decline attempts to change its instructions; and to close admissions answers by asking the family to confirm with the office.
+- It has no access to any student record, result, portal or the enquiry database. It cannot apply, book, reserve or take payment, and it says so when asked.
+- Answers stream in as they are produced and are rendered as plain text, never as markup. The conversation is not written to the database or to the visitor's device.
+- 25 questions per hour per source; 600 characters per question; 12 turns of history; 400 tokens per answer. The assistant is only offered when the deployment actually has AI credentials.
+- Every answer carries a visible caution that generated answers can be wrong and that the school confirms admissions, fees, places and dates.
+
+### Staff enquiry desk
+
+- Private page at `/staff`, excluded from search engines and never cached.
+- Sign-in is performed by a Netlify Function, so the public site continues to ship no authentication library and no third-party script.
+- **A valid account is not enough.** Netlify Identity allows open registration by default, so every read and every update independently requires an explicit `staff` or `admin` role that only a project administrator can grant. An account without one signs in and is told to ask for a role.
+- Staff see each enquiry with its contact details, chosen class, proposed day, topics and question; they can filter by status, move it through new / read / answered / closed, and keep an internal note. Family-entered text is always rendered as text, never as markup.
+- The page holds no enquiry data in its markup; everything arrives after the role has been checked.
+
+### Scroll-linked 3D depth
+
+- Built on native CSS scroll-driven animations (`animation-timeline: view()`), so scrolling is composited by the browser instead of driven by a JavaScript animation loop. There is no scroll listener, no perpetual `requestAnimationFrame` and no library.
+- Content rises out of the page plane as it enters view, photographs drift gently inside clipped frames, chapter photographs settle out of a slight recline, and cards tilt a few degrees under a fine pointer only.
+- Browsers without scroll-driven animations get a one-shot IntersectionObserver reveal instead; browsers without either simply show the finished page.
+- No transform ever grows an element horizontally, so the existing "no chapter overflows its viewport" guarantee holds at every tested width.
+- System reduced motion and the School Desk motion preference each disable the whole layer, live, without a reload. Printing always produces the plain page.
+- This is separate from, and cooperates with, the older opt-in `motion.js` effects: the hero treatment stands down whenever that layer is running.
+
+### Platform hardening
+
+- A content security policy restricting scripts, styles, images, fonts, connections, forms and framing to this origin, plus `nosniff`, `DENY` framing, a strict referrer policy, a permissions policy and HSTS.
+- HTML is always revalidated so school information is never served stale; the query-versioned runtime bundles are cached immutably for a year; photography is cached for a week with background revalidation; the service worker is never cached.
+- Permanent redirects keep every old GitHub Pages project link working, and `/admissions` and `/contact` become short links into the right chapter.
+- `robots.txt` keeps the staff area and the API out of search results. The staff page additionally sends `noindex`.
 
 ## Version 3.1 — loading screen
 
@@ -17,8 +65,9 @@ The 24 dedicated tests exercise these cases in real Chromium, including Axe scan
 - Select discussion topics and optionally write a question (400 characters; rendered as text, never executable HTML). Do not include sensitive information.
 - Open a `mailto:` draft in an email app, copy with a manual-selection fallback, or download the exact reviewed plan as UTF-8 text. The website has no sending service or submission endpoint.
 - A dated plan may explicitly add one follow-up reminder. Duplicate clicks are blocked, the existing 100-reminder cap applies, and the same School Desk consent and export rules govern it.
-- Answers live only in page memory, never storage or backups. Closing retains answers; reset/reload clears them. Reset is confirmed and does not delete previously created reminders.
-- No new permission prompt, account, tracking or dependency is introduced. The bundled wizard works after an opt-in offline reload; sending email and school confirmation require separate services.
+- Answers live only in page memory, never storage or backups, unless the visitor explicitly sends the enquiry to the school (version 3.2). Closing retains answers; reset/reload clears them. Reset is confirmed and does not delete previously created reminders.
+- No new permission prompt, account or tracking is introduced. The bundled wizard works after an opt-in offline reload; sending email and school confirmation require separate services.
+- **Superseded in version 3.2:** the statements above about the enquiry never using a network request describe the local-only flow, which is still the default. The separate, consent-gated *send to the school* button added in 3.2 does make a request and does store the enquiry. See the version-3.2 section at the top.
 
 ### School stories and chapter contents
 - Original photographs illustrate Learning, Community and Faith; nothing depicts a fabricated facility.
@@ -45,7 +94,7 @@ Optional 3D is now **off by default** and its CSS/JS load only when enabled; an 
 - Open with **Ctrl/Command + K**, the Search button, or `/` when not typing into a form.
 - Filter by services, school information, and news.
 - Keyboard navigation supports arrow keys, Enter, and Escape.
-- Queries are processed locally; no search query is sent to a server.
+- Queries are processed locally; no search query is sent to a server. (The separate assistant added in version 3.2 is the one feature that does send a typed question onwards, and only when a visitor opens it.)
 - Private school portals and student records are not indexed.
 
 ### 2. My school desk
